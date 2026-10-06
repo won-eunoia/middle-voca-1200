@@ -486,8 +486,23 @@ footer {
 }
 .speed-row { margin-top: 10px; font-size: 13px; color: var(--text-soft); display:flex; align-items:center; justify-content:center; gap:8px; }
 .speed-row input { width: 160px; accent-color: #7B5EA7; }
-</style>
-</head>
+.day-bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; max-width:640px; margin:12px auto 0; padding:0 16px; font-size:14px; color:var(--text-soft); }
+.day-bar select { padding:8px 10px; border-radius:8px; border:1.5px solid var(--border); font-size:15px; font-weight:700; background:var(--card-bg); color:var(--dark-purple); }
+.day-info { font-size:13px; }
+.stage-help { font-size:13px; color:var(--text-soft); margin-bottom:10px; line-height:1.5; }
+.new-mark { border-left:4px solid #C9A84C; padding-left:6px; }
+.listen-count { font-size:13px; font-weight:700; color:var(--purple); margin-bottom:8px; }
+.listen-list { display:flex; flex-direction:column; gap:6px; max-height:60vh; overflow-y:auto; }
+.listen-item { display:grid; grid-template-columns:36px 1fr 1.4fr; gap:8px; align-items:center; padding:10px 10px; border:1.5px solid var(--border); border-radius:10px; background:var(--light-purple); cursor:pointer; text-align:left; }
+.listen-item .li-num { font-size:11px; color:var(--text-soft); }
+.listen-item .li-eng { font-weight:800; color:var(--dark-purple); font-style:italic; }
+.listen-item .li-kor { font-size:13px; color:var(--text); }
+.listen-item.is-new { border-left:5px solid #C9A84C; }
+.listen-item.heard { opacity:0.55; }
+.listen-item:active { transform:scale(0.99); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .listen-item .li-eng { color:#EADFFB; } }
+:root[data-theme="dark"] .listen-item .li-eng { color:#EADFFB; }
+</style></head>
 
 <body>
 
@@ -514,25 +529,35 @@ footer {
   </div>
 </header>
 
-<div class="tabs">
-  <button class="tab-btn active" id="tabQuizBtn">🔊 듣기 퀴즈</button>
-  <button class="tab-btn" id="tabMatchBtn">🃏 카드 맞추기</button>
+<div class="day-bar">
+  <label for="daySelect">📅</label>
+  <select id="daySelect"></select>
+  <span class="day-info" id="dayInfo"></span>
 </div>
 
+<div class="tabs">
+  <button class="tab-btn active" id="tabListenBtn">① 듣기</button>
+  <button class="tab-btn" id="tabMatchBtn">② 카드 맞추기</button>
+  <button class="tab-btn" id="tabQuizBtn">③ 새 단어 퀴즈</button>
+</div>
 <main>
+  <!-- ① Listening panel -->
+  <section class="panel" id="listenPanel">
+    <div class="stage-help">단어를 눌러 한 번씩 들어보세요. (영어 → 한글 뜻 순서로 한 번씩 읽어줘요) <b class="new-mark">금색 줄</b> = 오늘 처음 나온 단어</div>
+    <div class="listen-count" id="listenCount"></div>
+    <div class="listen-list" id="listenList"></div>
+    <div class="next-row">
+      <button class="next-btn" id="listenNextBtn">② 카드 맞추기로 →</button>
+    </div>
+  </section>
+
   <!-- Listening quiz panel -->
-  <section class="panel" id="quizPanel">
-    <div class="quiz-top">
+  <section class="panel hidden" id="quizPanel">
+    <div class="stage-help" id="quizHelp"></div>    <div class="quiz-top">
       <span>라운드 <span id="roundNumLabel">1</span>/5 · 문제 <span id="quizIndex">1</span> / <span id="roundSizeLabel">30</span></span>
       <span class="quiz-score">정답 <span id="quizScore">0</span> / <span id="quizTotal">0</span></span>
     </div>
     <div class="save-indicator" id="saveIndicator"></div>
-
-    <div class="direction-toggle">
-      <button id="dirEngBtn" class="active">영단어 듣고 뜻 고르기</button>
-      <button id="dirKorBtn">뜻 듣고 영단어 고르기</button>
-    </div>
-
     <div id="quizQuestionArea">
       <div class="round-transition hidden" id="roundTransition"></div>
       <div class="speak-area">
@@ -560,28 +585,25 @@ footer {
 
   <!-- Matching game panel -->
   <section class="panel hidden" id="matchPanel">
+    <div class="stage-help" id="matchHelp"></div>
     <div class="match-controls">
-      <label for="matchMode">모드:</label>
-      <select id="matchMode">
-        <option value="random" selected>랜덤 단어</option>
-      </select>
-      <label for="pairCount">카드 쌍 수:</label>
+      <label for="pairCount">한 판당 카드 쌍:</label>
       <select id="pairCount">
         <option value="6">6쌍 (12장)</option>
-        <option value="8" selected>8쌍 (16장)</option>
-        <option value="10">10쌍 (20장)</option>
+        <option value="8">8쌍 (16장)</option>
+        <option value="10" selected>10쌍 (20장)</option>
         <option value="12">12쌍 (24장)</option>
       </select>
-      <button class="new-game-btn" id="newGameBtn">새 게임</button>
-    </div>
-    <div class="match-status" id="matchStatus">시도 0회 · 남은 쌍 0개</div>
+      <button class="new-game-btn" id="newGameBtn">처음부터 다시</button>
+    </div>    <div class="match-status" id="matchStatus">시도 0회 · 남은 쌍 0개</div>
     <div class="match-grid" id="matchGrid"></div>
-    <div class="win-banner hidden" id="winBanner">🎉 모두 맞췄어요! 새 게임을 눌러 다시 도전하세요.</div>
+    <div class="win-banner hidden" id="winBanner"></div>
+    <div class="next-row"><button class="next-btn hidden" id="nextBoardBtn">다음 판 →</button></div>
     <div class="group-info hidden" id="groupInfo"></div>
   </section>
 </main>
 
-<footer>유노이아 영어국어학원 · 총 1200 단어에서 무작위로 출제됩니다</footer>
+<footer>유노이아 영어국어학원 · Day별로 순서대로 공부해요</footer>
 
 </div>
 
@@ -737,7 +759,9 @@ function pickVoice(lang) {
   } catch (e) { return null; }
 }
 
-function speak(text, lang) {
+let speakToken = 0;
+function speak(text, lang, onend) {
+  const myToken = ++speakToken;
   try {
     const doSpeak = () => {
       // 앞쪽 구두점이 짧은 무음 구간이 되어 첫 음절이 잘리는 것을 막는다.
@@ -748,6 +772,8 @@ function speak(text, lang) {
       if (v) u.voice = v;
       u.rate = lang === 'ko-KR' ? Math.min(1.05, speechRate + 0.05) : speechRate;
       u.pitch = 1;
+      // 새 음성이 시작되면 이전 음성의 후속 재생(onend)은 취소된다
+      if (onend) u.onend = () => { if (myToken === speakToken) onend(); };
       window.speechSynthesis.speak(u);
     };
     if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
@@ -786,30 +812,133 @@ function shuffle(arr) {
   return a;
 }
 
-/* ===================== Tabs ===================== */
-const tabQuizBtn = document.getElementById('tabQuizBtn');
+/* ===================== Day 구성 ===================== */
+// day1 = 1~60, day2 = 1~80, day3 = 1~100, 이후 100개씩 20개씩 밀기 (day4 = 21~120, day5 = 41~140 ...)
+const TOTAL = VOCAB.length;
+const MAX_DAY = 58; // day58 = 1101~1200
+function dayRange(d) {
+  if (d === 1) return [1, 60];
+  if (d === 2) return [1, 80];
+  const start = (d - 3) * 20 + 1;
+  return [start, Math.min(start + 99, TOTAL)];
+}
+function prevMax(d) { return d === 1 ? 0 : dayRange(d - 1)[1]; }
+
+let currentDay = 1;
+let dayAll = [];     // 오늘 범위 전체
+let dayReview = [];  // 어제까지 공부한 단어 (복습)
+let dayNew = [];     // 오늘 처음 나오는 단어
+let currentStage = 'listen';
+
+const daySelect = document.getElementById('daySelect');
+const dayInfo = document.getElementById('dayInfo');
+const tabListenBtn = document.getElementById('tabListenBtn');
 const tabMatchBtn = document.getElementById('tabMatchBtn');
-const quizPanel = document.getElementById('quizPanel');
+const tabQuizBtn = document.getElementById('tabQuizBtn');
+const listenPanel = document.getElementById('listenPanel');
 const matchPanel = document.getElementById('matchPanel');
+const quizPanel = document.getElementById('quizPanel');
 
-tabQuizBtn.addEventListener('click', () => {
-  tabQuizBtn.classList.add('active');
-  tabMatchBtn.classList.remove('active');
-  quizPanel.classList.remove('hidden');
-  matchPanel.classList.add('hidden');
-});
-tabMatchBtn.addEventListener('click', () => {
-  tabMatchBtn.classList.add('active');
-  tabQuizBtn.classList.remove('active');
-  matchPanel.classList.remove('hidden');
-  quizPanel.classList.add('hidden');
-  if (!matchInitialized) startMatchGame();
-});
+for (let d = 1; d <= MAX_DAY; d++) {
+  const r = dayRange(d);
+  const o = document.createElement('option');
+  o.value = d;
+  o.textContent = `Day ${d} · ${r[0]}~${r[1]}번`;
+  daySelect.appendChild(o);
+}
+daySelect.addEventListener('change', () => setDay(parseInt(daySelect.value, 10)));
 
-/* ===================== Listening quiz ===================== */
-const FIRST_ROUND_SIZE = 30;
+function dayKey() { return 'middle_voca_day_' + playerName; }
+
+function setDay(d) {
+  currentDay = d;
+  daySelect.value = d;
+  const r = dayRange(d);
+  const pm = prevMax(d);
+  dayAll = VOCAB.slice(r[0] - 1, r[1]);
+  dayReview = dayAll.filter((v, i) => (r[0] + i) <= pm);
+  dayNew = dayAll.filter((v, i) => (r[0] + i) > pm);
+  dayInfo.textContent = dayReview.length
+    ? `오늘 ${dayAll.length}개 · 복습 ${dayReview.length}개 + 새 단어 ${dayNew.length}개`
+    : `오늘 ${dayAll.length}개 · 모두 새 단어`;
+  try { localStorage.setItem(dayKey(), d); } catch (e) {}
+  buildListen();
+  matchInitialized = false;
+  quizInitialized = false;
+  showStage('listen');
+}
+
+function showStage(stage) {
+  currentStage = stage;
+  const map = { listen: [tabListenBtn, listenPanel], match: [tabMatchBtn, matchPanel], quiz: [tabQuizBtn, quizPanel] };
+  Object.keys(map).forEach(k => {
+    map[k][0].classList.toggle('active', k === stage);
+    map[k][1].classList.toggle('hidden', k !== stage);
+  });
+  if (stage === 'match' && !matchInitialized) startMatchSet();
+  if (stage === 'quiz' && !quizInitialized) startSession();
+}
+tabListenBtn.addEventListener('click', () => showStage('listen'));
+tabMatchBtn.addEventListener('click', () => showStage('match'));
+tabQuizBtn.addEventListener('click', () => showStage('quiz'));
+
+function saveProgress() {
+  apiSave({
+    status: 'in_progress',
+    direction: 'eng',
+    day: currentDay,
+    roundNumber: roundNumber,
+    roundIndex: roundIndex,
+    roundPool: roundPool,
+    score: score,
+    roundWrong: roundWrong
+  });
+}
+
+/* ===================== ① 듣기 (누르면 한 번씩 읽어주기) ===================== */
+const listenList = document.getElementById('listenList');
+const listenCount = document.getElementById('listenCount');
+const listenNextBtn = document.getElementById('listenNextBtn');
+let heard = new Set();
+
+// 영어 한 번 → 한글 뜻 한 번
+function speakPair(en, ko) {
+  speak(en, 'en-US', () => speak(speakableKorean(ko), 'ko-KR'));
+}
+
+function updateListenCount() {
+  listenCount.textContent = `들어본 단어 ${heard.size} / ${dayAll.length}`;
+}
+
+function buildListen() {
+  heard = new Set();
+  const start = dayRange(currentDay)[0];
+  const pm = prevMax(currentDay);
+  listenList.innerHTML = '';
+  dayAll.forEach((v, i) => {
+    const num = start + i;
+    const div = document.createElement('div');
+    div.className = 'listen-item' + (num > pm ? ' is-new' : '');
+    div.innerHTML = '<span class="li-num"></span><span class="li-eng"></span><span class="li-kor"></span>';
+    div.querySelector('.li-num').textContent = num;
+    div.querySelector('.li-eng').textContent = v[0];
+    div.querySelector('.li-kor').textContent = v[1];
+    div.addEventListener('click', () => {
+      speakPair(v[0], v[1]);
+      heard.add(num);
+      div.classList.add('heard');
+      updateListenCount();
+    });
+    listenList.appendChild(div);
+  });
+  updateListenCount();
+}
+listenNextBtn.addEventListener('click', () => showStage('match'));
+
+/* ===================== ③ 듣고 뜻 고르기 (오늘 새 단어) ===================== */
+const FIRST_ROUND_SIZE = 60;
 const MAX_ROUNDS = 5;
-let quizDirection = 'eng'; // 'eng' = hear English, choose Korean; 'kor' = hear Korean, choose English
+let quizInitialized = false;
 let currentItem = null;
 let currentChoices = [];
 let answered = false;
@@ -821,8 +950,6 @@ let roundWrong = [];
 let attemptCounts = {}; // per-round retry counter, keyed by English word (reset each round)
 const MAX_ATTEMPTS_PER_ROUND = 2; // a missed word gets requeued once, then counts as wrong for the round
 
-const dirEngBtn = document.getElementById('dirEngBtn');
-const dirKorBtn = document.getElementById('dirKorBtn');
 const speakBtn = document.getElementById('speakBtn');
 const choicesBox = document.getElementById('choicesBox');
 const nextBtn = document.getElementById('nextBtn');
@@ -838,71 +965,36 @@ const roundScoreText = document.getElementById('roundScoreText');
 const wrongListTitle = document.getElementById('wrongListTitle');
 const wrongList = document.getElementById('wrongList');
 const restartBtn = document.getElementById('restartBtn');
+const quizHelp = document.getElementById('quizHelp');
 
-dirEngBtn.addEventListener('click', () => {
-  quizDirection = 'eng';
-  dirEngBtn.classList.add('active');
-  dirKorBtn.classList.remove('active');
-  startSession();
-});
-dirKorBtn.addEventListener('click', () => {
-  quizDirection = 'kor';
-  dirKorBtn.classList.add('active');
-  dirEngBtn.classList.remove('active');
-  startSession();
-});
-
+// 정답과 같은 뜻을 가진 단어가 보기에 섞이면 정답이 둘이 되므로 뜻이 겹치지 않게 뽑는다.
 function pickDistractors(correct, n) {
-  const pool = VOCAB.filter(v => v[0] !== correct[0]);
-  return shuffle(pool).slice(0, n);
+  const used = new Set([correct[1]]);
+  const out = [];
+  for (const v of shuffle(VOCAB)) {
+    if (v[0] === correct[0] || used.has(v[1])) continue;
+    used.add(v[1]);
+    out.push(v);
+    if (out.length >= n) break;
+  }
+  return out;
 }
 
 function startSession() {
+  quizInitialized = true;
   roundNumber = 1;
-  const unmastered = VOCAB.filter(v => !masteredWords.has(v[0]));
-  if (unmastered.length === 0) {
-    // everything mastered at least once -> full review mode
-    roundTransition.textContent = '🎉 전체 1200단어를 모두 한 번씩 맞혀봤어요! 복습 모드로 계속합니다.';
-    roundTransition.classList.remove('hidden');
-    setTimeout(() => roundTransition.classList.add('hidden'), 2200);
-    roundPool = shuffle(VOCAB).slice(0, FIRST_ROUND_SIZE);
-  } else {
-    roundPool = shuffle(unmastered).slice(0, FIRST_ROUND_SIZE);
-  }
+  quizHelp.textContent = `오늘 처음 나온 단어 ${dayNew.length}개 · 영단어를 듣고 알맞은 뜻을 고르세요`;
+  roundPool = shuffle(dayNew).slice(0, FIRST_ROUND_SIZE);
   beginRound();
 }
 
-function resumeRound(state) {
-  quizDirection = state.direction === 'kor' ? 'kor' : 'eng';
-  if (quizDirection === 'eng') {
-    dirEngBtn.classList.add('active'); dirKorBtn.classList.remove('active');
-  } else {
-    dirKorBtn.classList.add('active'); dirEngBtn.classList.remove('active');
-  }
-  roundNumber = state.roundNumber || 1;
-  roundPool = (state.roundPool && state.roundPool.length) ? state.roundPool : shuffle(VOCAB).slice(0, FIRST_ROUND_SIZE);
-  roundIndex = state.roundIndex || 0;
-  score = state.score || 0;
-  roundWrong = state.roundWrong || [];
-  attemptCounts = {};
-  quizResult.classList.add('hidden');
-  quizQuestionArea.classList.remove('hidden');
-  quizScoreEl.textContent = score;
-  quizTotalEl.textContent = roundPool.length;
-  roundNumLabel.textContent = roundNumber;
-  roundSizeLabel.textContent = roundPool.length;
-  roundTransition.textContent = `이어서 시작합니다 · ${roundNumber}차 라운드`;
-  roundTransition.classList.remove('hidden');
-  setTimeout(() => roundTransition.classList.add('hidden'), 1600);
-  nextQuestion();
-}
-
 function initGameForPlayer() {
-  if (resumedState) {
-    resumeRound(resumedState);
-  } else {
-    startSession();
-  }
+  let d = 1;
+  try {
+    const v = parseInt(localStorage.getItem(dayKey()), 10);
+    if (v >= 1 && v <= MAX_DAY) d = v;
+  } catch (e) {}
+  setDay(d);
 }
 
 function beginRound() {
@@ -931,14 +1023,13 @@ function nextQuestion() {
   roundSizeLabel.textContent = roundPool.length;
 
   currentItem = roundPool[roundIndex - 1];
-  const distractors = pickDistractors(currentItem, 3);
-  currentChoices = shuffle([currentItem, ...distractors]);
+  currentChoices = shuffle([currentItem, ...pickDistractors(currentItem, 3)]);
 
   choicesBox.innerHTML = '';
   currentChoices.forEach(choice => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
-    btn.textContent = quizDirection === 'eng' ? choice[1] : choice[0];
+    btn.textContent = choice[1];
     btn.addEventListener('click', () => selectChoice(btn, choice));
     choicesBox.appendChild(btn);
   });
@@ -949,13 +1040,8 @@ function nextQuestion() {
 }
 
 function speakCurrent() {
-  if (quizDirection === 'eng') {
-    speak(currentItem[0], 'en-US');
-  } else {
-    speak(speakableKorean(currentItem[1]), 'ko-KR');
-  }
+  if (currentItem) speak(currentItem[0], 'en-US');
 }
-
 speakBtn.addEventListener('click', speakCurrent);
 
 function selectChoice(btn, choice) {
@@ -979,11 +1065,9 @@ function selectChoice(btn, choice) {
       const insertAt = Math.min(roundIndex + gap, roundPool.length);
       roundPool.splice(insertAt, 0, currentItem);
     } else {
-      // already retried once and missed again -> counts as wrong for this round
       roundWrong.push(currentItem);
     }
 
-    // reveal correct
     [...choicesBox.children].forEach((c, i) => {
       if (currentChoices[i][0] === currentItem[0]) c.classList.add('correct');
     });
@@ -991,17 +1075,7 @@ function selectChoice(btn, choice) {
   [...choicesBox.children].forEach(c => c.disabled = true);
   quizScoreEl.textContent = score;
   nextBtn.disabled = false;
-
-  apiSave({
-    status: 'in_progress',
-    direction: quizDirection,
-    roundNumber: roundNumber,
-    roundIndex: roundIndex,
-    roundPool: roundPool,
-    score: score,
-    roundWrong: roundWrong,
-    lastAnswerCorrect: isCorrect
-  });
+  saveProgress();
 }
 
 function finishRound() {
@@ -1015,20 +1089,19 @@ function finishRound() {
   roundPool = shuffle(roundWrong);
   roundTransition.textContent = `${roundNumber}차 라운드 시작 · 복습 단어 ${roundPool.length}개`;
   roundTransition.classList.remove('hidden');
-  setTimeout(() => {
-    roundTransition.classList.add('hidden');
-  }, 1600);
+  setTimeout(() => roundTransition.classList.add('hidden'), 1600);
   beginRound();
 }
 
 function showFinalResult() {
   quizQuestionArea.classList.add('hidden');
   quizResult.classList.remove('hidden');
-  roundScoreText.textContent = `${roundNumber}차 라운드까지 완료 · 이번 라운드 ${roundPool.length}문제 중 ${score}개 정답`;
+  roundScoreText.textContent = `Day ${currentDay} 완료 · ${roundNumber}차 라운드까지 진행했어요`;
 
   apiSave({
     status: 'done',
-    direction: quizDirection,
+    direction: 'eng',
+    day: currentDay,
     roundNumber: roundNumber,
     roundIndex: roundIndex,
     roundPool: roundPool,
@@ -1039,7 +1112,7 @@ function showFinalResult() {
 
   if (roundWrong.length === 0) {
     wrongListTitle.textContent = '';
-    wrongList.innerHTML = '<div class="no-wrong">🎉 모든 단어를 다 맞혔어요!</div>';
+    wrongList.innerHTML = '<div class="no-wrong">🎉 오늘 새 단어를 모두 맞혔어요!</div>';
   } else {
     wrongListTitle.textContent = `끝까지 틀린 단어 ${roundWrong.length}개 — 복습해보세요`;
     wrongList.innerHTML = '';
@@ -1057,92 +1130,66 @@ function showFinalResult() {
 nextBtn.addEventListener('click', nextQuestion);
 restartBtn.addEventListener('click', startSession);
 
-/* ===================== Matching game ===================== */
+/* ===================== ② 카드 맞추기 (복습 단어) ===================== */
 let matchInitialized = false;
 let selectedCards = [];
 let matchedCount = 0;
 let totalPairs = 0;
 let attempts = 0;
 let lockBoard = false;
+let matchBoards = [];
+let boardIdx = 0;
 
 const pairCountSel = document.getElementById('pairCount');
-const matchModeSel = document.getElementById('matchMode');
 const newGameBtn = document.getElementById('newGameBtn');
 const matchGrid = document.getElementById('matchGrid');
 const matchStatus = document.getElementById('matchStatus');
+const matchHelp = document.getElementById('matchHelp');
 const winBanner = document.getElementById('winBanner');
-const groupInfo = document.getElementById('groupInfo');
-let currentGroups = [];
+const nextBoardBtn = document.getElementById('nextBoardBtn');
 
-newGameBtn.addEventListener('click', startMatchGame);
-matchModeSel.addEventListener('change', startMatchGame);
-pairCountSel.addEventListener('change', startMatchGame);
+newGameBtn.addEventListener('click', startMatchSet);
+pairCountSel.addEventListener('change', startMatchSet);
 
-// 묶음 모드: 같은 묶음의 단어들을 통째로 넣어서, 뜻이 비슷한 카드끼리 섞이게 한다.
-function pickGroupItems(target) {
-  const pool = shuffle(GROUPS);
-  const chosenGroups = [];
-  let count = 0;
-  for (const g of pool) {
-    if (count >= target) break;
-    if (count + g.length <= target) {
-      chosenGroups.push(g);
-      count += g.length;
-    }
+// 복습 단어를 N쌍씩 여러 판으로 나눠서 전부 한 번씩 맞춰본다. (첫날은 복습할 단어가 없으니 오늘 단어로 워밍업)
+function startMatchSet() {
+  matchInitialized = true;
+  const src = dayReview.length ? dayReview : dayAll;
+  matchHelp.textContent = dayReview.length
+    ? `어제까지 공부한 단어 ${src.length}개를 카드로 복습해요`
+    : `첫날이라 복습할 단어가 없어서, 오늘 단어 ${src.length}개로 워밍업해요`;
+  const per = parseInt(pairCountSel.value, 10);
+  const shuffled = shuffle(src);
+  matchBoards = [];
+  for (let i = 0; i < shuffled.length; i += per) matchBoards.push(shuffled.slice(i, i + per));
+  if (matchBoards.length > 1 && matchBoards[matchBoards.length - 1].length < 4) {
+    const tail = matchBoards.pop();
+    matchBoards[matchBoards.length - 1] = matchBoards[matchBoards.length - 1].concat(tail);
   }
-  // 아직 자리가 남으면 가장 작은 묶음으로 채워본다
-  if (count < target) {
-    for (const g of pool) {
-      if (chosenGroups.indexOf(g) !== -1) continue;
-      if (count + g.length <= target) { chosenGroups.push(g); count += g.length; }
-      if (count >= target) break;
-    }
-  }
-  currentGroups = chosenGroups;
-  const items = [];
-  const seen = new Set();
-  chosenGroups.forEach(g => g.forEach(w => {
-    if (!seen.has(w) && VOCAB_MAP[w] !== undefined) {
-      seen.add(w);
-      items.push([w, VOCAB_MAP[w]]);
-    }
-  }));
-  return items;
+  boardIdx = 0;
+  startBoard();
 }
 
-function startMatchGame() {
-  matchInitialized = true;
+function startBoard() {
   winBanner.classList.add('hidden');
-  groupInfo.classList.add('hidden');
+  nextBoardBtn.classList.add('hidden');
   selectedCards = [];
   matchedCount = 0;
   attempts = 0;
   lockBoard = false;
-  const target = parseInt(pairCountSel.value, 10);
-  const mode = matchModeSel.value;
-
-  let chosen;
-  if (mode === 'group') {
-    chosen = pickGroupItems(target);
-  } else {
-    currentGroups = [];
-    chosen = shuffle(VOCAB).slice(0, target);
-  }
+  const chosen = matchBoards[boardIdx] || [];
   totalPairs = chosen.length;
 
-  // 묶음 모드에서는 뜻 전체를 보여줘서 비슷한 단어끼리도 구분되게 한다.
   // 같은 뜻이 적힌 카드는 서로 같은 짝으로 인정한다(meaningKey).
   const cards = [];
   chosen.forEach((item, i) => {
-    const korText = mode === 'group' ? item[1].replace(/^\([^)]*\)\s*/, '') : cleanKoreanText(item[1]);
-    const key = korText;
-    cards.push({ type: 'eng', text: item[0], pairId: i, meaningKey: key });
-    cards.push({ type: 'kor', text: korText, pairId: i, meaningKey: key });
+    const korText = cleanKoreanText(item[1]);
+    cards.push({ type: 'eng', text: item[0], pairId: i, meaningKey: korText });
+    cards.push({ type: 'kor', text: korText, pairId: i, meaningKey: korText });
   });
-  const shuffled = shuffle(cards);
 
   matchGrid.innerHTML = '';
-  shuffled.forEach(card => {
+  shuffle(cards).forEach(card => {
     const div = document.createElement('div');
     div.className = 'match-card' + (card.type === 'eng' ? ' eng' : '');
     div.textContent = card.text;
@@ -1151,29 +1198,30 @@ function startMatchGame() {
     div.addEventListener('click', () => onCardClick(div, card));
     matchGrid.appendChild(div);
   });
-
   updateMatchStatus();
 }
 
 function updateMatchStatus() {
-  matchStatus.textContent = `시도 ${attempts}회 · 남은 쌍 ${totalPairs - matchedCount}개`;
+  matchStatus.textContent = `${boardIdx + 1} / ${matchBoards.length}판 · 시도 ${attempts}회 · 남은 쌍 ${totalPairs - matchedCount}개`;
 }
 
-function showGroupInfo() {
-  if (!currentGroups.length) return;
-  let h = '<div class="gi-title">이번 판의 헷갈리는 단어 묶음 — 차이를 기억해두세요</div>';
-  currentGroups.forEach(g => {
-    h += '<div class="gi-group">';
-    g.forEach(w => {
-      if (VOCAB_MAP[w] === undefined) return;
-      const safeW = w.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-      const safeM = VOCAB_MAP[w].replace(/&/g, '&amp;').replace(/</g, '&lt;');
-      h += '<span class="gi-item"><b>' + safeW + '</b> — ' + safeM + '</span>';
-    });
-    h += '</div>';
-  });
-  groupInfo.innerHTML = h;
-  groupInfo.classList.remove('hidden');
+nextBoardBtn.addEventListener('click', () => {
+  if (boardIdx < matchBoards.length - 1) {
+    boardIdx++;
+    startBoard();
+  } else {
+    showStage('quiz');
+  }
+});
+
+function onBoardCleared() {
+  const last = boardIdx >= matchBoards.length - 1;
+  winBanner.textContent = last
+    ? '🎉 복습 카드 맞추기를 모두 끝냈어요! 이제 ③ 새 단어 퀴즈로 가볼까요?'
+    : `🎉 ${boardIdx + 1}판 완료! 다음 판으로 넘어가요.`;
+  nextBoardBtn.textContent = last ? '③ 새 단어 퀴즈로 →' : '다음 판 →';
+  winBanner.classList.remove('hidden');
+  nextBoardBtn.classList.remove('hidden');
 }
 
 function onCardClick(div, card) {
@@ -1182,8 +1230,7 @@ function onCardClick(div, card) {
   if (selectedCards.length >= 2) return;
 
   div.classList.add('selected');
-  const spokenText = card.type === 'eng' ? card.text : cleanKoreanText(card.text).replace(/~/g, '뭐뭐');
-  speak(spokenText, card.type === 'eng' ? 'en-US' : 'ko-KR');
+  speak(card.type === 'eng' ? card.text : cleanKoreanText(card.text).replace(/~/g, '뭐뭐'), card.type === 'eng' ? 'en-US' : 'ko-KR');
   selectedCards.push({ div, card });
 
   if (selectedCards.length === 2) {
@@ -1193,8 +1240,7 @@ function onCardClick(div, card) {
     const isMatch = a.card.type !== b.card.type &&
       (a.card.pairId === b.card.pairId || a.card.meaningKey === b.card.meaningKey);
 
-    // 단어 카드 1장 + 뜻 카드 1장으로 짝을 시도한 경우에만, 그 단어를 진행률/오답 기록에 반영한다
-    // (단어-단어, 뜻-뜻 조합은 실제 뜻을 아는지 테스트한 게 아니므로 반영하지 않음)
+    // 단어 카드 1장 + 뜻 카드 1장으로 짝을 시도한 경우에만 진행률/오답 기록에 반영한다
     const engCard = a.card.type === 'eng' ? a.card : (b.card.type === 'eng' ? b.card : null);
     const testedWord = (a.card.type !== b.card.type && engCard) ? engCard.text : null;
 
@@ -1209,16 +1255,13 @@ function onCardClick(div, card) {
       if (testedWord) {
         masteredWords.add(testedWord);
         updateMasteryDisplay();
-        apiSave({ status: 'in_progress', direction: quizDirection, roundNumber: roundNumber, roundIndex: roundIndex, roundPool: roundPool, score: score, roundWrong: roundWrong });
+        saveProgress();
       }
-      if (matchedCount === totalPairs) {
-        winBanner.classList.remove('hidden');
-        showGroupInfo();
-      }
+      if (matchedCount === totalPairs) onBoardCleared();
     } else {
       if (testedWord) {
         wrongCounts[testedWord] = (wrongCounts[testedWord] || 0) + 1;
-        apiSave({ status: 'in_progress', direction: quizDirection, roundNumber: roundNumber, roundIndex: roundIndex, roundPool: roundPool, score: score, roundWrong: roundWrong });
+        saveProgress();
       }
       lockBoard = true;
       setTimeout(() => {

@@ -760,6 +760,7 @@ function pickVoice(lang) {
   } catch (e) { return null; }
 }
 
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 let speakToken = 0;
 function speak(text, lang, onend) {
   const myToken = ++speakToken;
@@ -767,7 +768,8 @@ function speak(text, lang, onend) {
     const doSpeak = () => {
       // 앞쪽 구두점이 짧은 무음 구간이 되어 첫 음절이 잘리는 것을 막는다.
       // 쉼표 뒤에 자연스러운 호흡이 생기도록 단어 끝에도 마침표를 붙인다.
-      const u = new SpeechSynthesisUtterance(', , ' + text + '.');
+      // iOS는 앞쪽 쉼표를 '소리'로 읽어버리므로 아이폰/아이패드에서는 순수 텍스트만 읽힌다.
+      const u = new SpeechSynthesisUtterance(IS_IOS ? text : ', , ' + text + '.');
       u.lang = lang;
       const v = pickVoice(lang);
       if (v) u.voice = v;

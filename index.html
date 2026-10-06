@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>중등 필수 영단어 1200 · 듣기 퀴즈 &amp; 카드 맞추기</title>
+<style>
+:root {
+  --purple: #7B5EA7;
+  --dark-purple: #4A3568;
+  --gold: #C9A84C;
+  --light-purple: #F3EFFE;
+  --bg: #FBFAF8;
+  --card-bg: #FFFFFF;
+  --text: #2B2532;
+  --text-soft: #6B6178;
+  --border: #E4DEF0;
+  --good: #3F9A5C;
+  --bad: #C6553E;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1C1720;
+    --card-bg: #2A2233;
+    --text: #F1ECF7;
+    --text-soft: #B8ACC9;
+    --border: #423755;
+    --light-purple: #352A44;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1C1720;
+  --card-bg: #2A2233;
+  --text: #F1ECF7;
+  --text-soft: #B8ACC9;
+  --border: #423755;
+  --light-purple: #352A44;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  min-height: 100%;
+}
+header {
+  padding: 20px 16px 14px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: var(--card-bg);
+}
+header h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: var(--dark-purple);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) header h1 { color: #D8C6F2; }
+}
+:root[data-theme="dark"] header h1 { color: #D8C6F2; }
+header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px 0;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 10px 10px 0 0;
+  background: var(--light-purple);
+  color: var(--text-soft);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tab-btn.active {
+  background: var(--purple);
+  color: #fff;
+}
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 0 10px 10px 10px;
+  padding: 20px 16px;
+}
+.hidden { display: none !important; }
+
+/* ---- Listening quiz ---- */
+.quiz-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.quiz-score { font-weight: 700; color: var(--dark-purple); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .quiz-score { color: #D8C6F2; }
+}
+:root[data-theme="dark"] .quiz-score { color: #D8C6F2; }
+
+.direction-toggle {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.direction-toggle button {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-soft);
+  font-size: 12px;
+  cursor: pointer;
+}
+.direction-toggle button.active {
+  background: var(--dark-purple);
+  color: #fff;
+  border-color: var(--dark-purple);
+}
+
+.speak-area {
+  text-align: center;
+  padding: 28px 12px;
+  background: var(--light-purple);
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+.speak-btn {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: none;
+  background: var(--purple);
+  color: #fff;
+  font-size: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(123,94,167,0.35);
+}
+.speak-btn:active { transform: scale(0.95); }
+.speak-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.choice-btn {
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.choice-btn:hover { border-color: var(--purple); }
+.choice-btn.correct { border-color: var(--good); background: rgba(63,154,92,0.12); font-weight: 700; }
+.choice-btn.wrong { border-color: var(--bad); background: rgba(198,85,62,0.12); }
+.choice-btn:disabled { cursor: default; }
+
+.next-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+.next-btn {
+  padding: 10px 28px;
+  border-radius: 999px;
+  border: none;
+  background: var(--dark-purple);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.next-btn:disabled { opacity: 0.4; cursor: default; }
+
+.round-score {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--dark-purple);
+  margin-bottom: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .round-score { color: #D8C6F2; }
+}
+:root[data-theme="dark"] .round-score { color: #D8C6F2; }
+.wrong-list-title {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-soft);
+  margin: 10px 0 12px;
+}
+.wrong-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.wrong-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(198,85,62,0.08);
+  border: 1px solid rgba(198,85,62,0.25);
+  font-size: 14px;
+}
+.wrong-item .w-eng { font-weight: 700; color: var(--bad); }
+.wrong-item .w-kor { color: var(--text-soft); text-align: right; }
+.no-wrong {
+  text-align: center;
+  padding: 20px;
+  color: var(--good);
+  font-weight: 700;
+}
+.round-transition {
+  text-align: center;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: var(--light-purple);
+  color: var(--dark-purple);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ---- Matching game ---- */
+.match-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+.match-controls select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+}
+.new-game-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: none;
+  background: var(--purple);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.match-status {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-bottom: 12px;
+}
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.match-card {
+  min-height: 76px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--light-purple);
+  color: var(--dark-purple);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 6px;
+  cursor: pointer;
+  line-height: 1.3;
+  transition: transform 0.12s, background 0.12s, border-color 0.12s;
+  word-break: keep-all;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .match-card { color: #EADFFB; }
+}
+:root[data-theme="dark"] .match-card { color: #EADFFB; }
+.match-card.matched {
+  background: rgba(63,154,92,0.15);
+  border-color: var(--good);
+  color: var(--good);
+  cursor: default;
+}
+.match-card.selected {
+  border-color: var(--purple);
+  background: var(--card-bg);
+  transform: scale(0.97);
+}
+.match-card.eng { font-style: italic; }
+
+.group-info {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--light-purple);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.group-info .gi-title { font-weight: 800; margin-bottom: 6px; color: var(--dark-purple); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .group-info .gi-title { color: #D8C6F2; }
+}
+:root[data-theme="dark"] .group-info .gi-title { color: #D8C6F2; }
+.group-info .gi-group { margin-bottom: 8px; }
+.group-info .gi-item { display: block; }
+.group-info .gi-item b { color: var(--purple); }
+.win-banner {
+  text-align: center;
+  padding: 14px;
+  margin-top: 14px;
+  border-radius: 10px;
+  background: rgba(63,154,92,0.12);
+  color: var(--good);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-soft);
+  padding: 10px 16px 24px;
+}
+
+.hidden { display: none !important; }
+
+.name-gate {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+}
+.name-gate-box {
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 24px;
+}
+.name-gate-icon { font-size: 40px; margin-bottom: 8px; }
+.name-gate-box h2 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  color: var(--dark-purple);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .name-gate-box h2 { color: #D8C6F2; }
+}
+:root[data-theme="dark"] .name-gate-box h2 { color: #D8C6F2; }
+.name-gate-box p {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+.name-gate-box input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.name-gate-box button#nameSubmitBtn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--purple);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.name-gate-status {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-soft);
+  min-height: 16px;
+}
+
+.player-name-tag {
+  margin: 8px 0 0 !important;
+  font-size: 12px !important;
+  color: var(--text-soft) !important;
+}
+.player-name-tag span { font-weight: 700; color: var(--dark-purple); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .player-name-tag span { color: #D8C6F2; }
+}
+:root[data-theme="dark"] .player-name-tag span { color: #D8C6F2; }
+.player-name-tag button {
+  margin-left: 8px;
+  border: none;
+  background: none;
+  color: var(--purple);
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mastery-bar-wrap {
+  max-width: 320px;
+  margin: 10px auto 0;
+}
+.mastery-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--light-purple);
+  overflow: hidden;
+}
+.mastery-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--purple), var(--gold));
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.mastery-bar-text {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+.save-indicator {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-soft);
+  margin-top: 8px;
+  min-height: 14px;
+}
+.speed-row { margin-top: 10px; font-size: 13px; color: var(--text-soft); display:flex; align-items:center; justify-content:center; gap:8px; }
+.speed-row input { width: 160px; accent-color: #7B5EA7; }
+</style>
+</head>
+
+<body>
+
+<div class="name-gate" id="nameGate">
+  <div class="name-gate-box">
+    <div class="name-gate-icon">🎧</div>
+    <h2>이름을 입력하세요</h2>
+    <p>진행 상황이 저장되어, 다음에 같은 이름으로 들어오면 이어서 할 수 있어요.</p>
+    <input type="text" id="nameInput" placeholder="예: 김민수" autocomplete="off">
+    <button id="nameSubmitBtn">시작하기</button>
+    <div class="name-gate-status" id="nameGateStatus"></div>
+  </div>
+</div>
+
+<div id="appRoot" class="hidden">
+
+<header>
+  <h1>중등 필수 영단어 1200</h1>
+  <p>듣기 퀴즈 &amp; 카드 맞추기 · 교육부 지정 중등 필수 영단어</p>
+  <p class="player-name-tag">👤 <span id="playerNameTag"></span> <button id="switchUserBtn">다른 이름으로</button></p>
+  <div class="mastery-bar-wrap">
+    <div class="mastery-bar-track"><div class="mastery-bar-fill" id="masteryBarFill"></div></div>
+    <div class="mastery-bar-text" id="masteryBarText">전체 어휘 진행: 0 / 1200 (0%)</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" id="tabQuizBtn">🔊 듣기 퀴즈</button>
+  <button class="tab-btn" id="tabMatchBtn">🃏 카드 맞추기</button>
+</div>
+
+<main>
+  <!-- Listening quiz panel -->
+  <section class="panel" id="quizPanel">
+    <div class="quiz-top">
+      <span>라운드 <span id="roundNumLabel">1</span>/5 · 문제 <span id="quizIndex">1</span> / <span id="roundSizeLabel">30</span></span>
+      <span class="quiz-score">정답 <span id="quizScore">0</span> / <span id="quizTotal">0</span></span>
+    </div>
+    <div class="save-indicator" id="saveIndicator"></div>
+
+    <div class="direction-toggle">
+      <button id="dirEngBtn" class="active">영단어 듣고 뜻 고르기</button>
+      <button id="dirKorBtn">뜻 듣고 영단어 고르기</button>
+    </div>
+
+    <div id="quizQuestionArea">
+      <div class="round-transition hidden" id="roundTransition"></div>
+      <div class="speak-area">
+        <button class="speak-btn" id="speakBtn" aria-label="다시 듣기">🔊</button>
+        <div class="speak-hint">버튼을 눌러 소리를 들어보세요</div>
+        <div class="speed-row">🐢 <input type="range" id="speedSlider" min="0.5" max="1.1" step="0.05" value="0.8"> <span id="speedLabel">0.8x</span></div>
+      </div>
+
+      <div class="choices" id="choicesBox"></div>
+
+      <div class="next-row">
+        <button class="next-btn" id="nextBtn" disabled>다음 문제</button>
+      </div>
+    </div>
+
+    <div id="quizResult" class="hidden">
+      <div class="round-score" id="roundScoreText"></div>
+      <div class="wrong-list-title" id="wrongListTitle"></div>
+      <div class="wrong-list" id="wrongList"></div>
+      <div class="next-row">
+        <button class="next-btn" id="restartBtn">새 라운드 시작</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Matching game panel -->
+  <section class="panel hidden" id="matchPanel">
+    <div class="match-controls">
+      <label for="matchMode">모드:</label>
+      <select id="matchMode">
+        <option value="random" selected>랜덤 단어</option>
+      </select>
+      <label for="pairCount">카드 쌍 수:</label>
+      <select id="pairCount">
+        <option value="6">6쌍 (12장)</option>
+        <option value="8" selected>8쌍 (16장)</option>
+        <option value="10">10쌍 (20장)</option>
+        <option value="12">12쌍 (24장)</option>
+      </select>
+      <button class="new-game-btn" id="newGameBtn">새 게임</button>
+    </div>
+    <div class="match-status" id="matchStatus">시도 0회 · 남은 쌍 0개</div>
+    <div class="match-grid" id="matchGrid"></div>
+    <div class="win-banner hidden" id="winBanner">🎉 모두 맞췄어요! 새 게임을 눌러 다시 도전하세요.</div>
+    <div class="group-info hidden" id="groupInfo"></div>
+  </section>
+</main>
+
+<footer>유노이아 영어국어학원 · 총 1200 단어에서 무작위로 출제됩니다</footer>
+
+</div>
+
+<script>
+const VOCAB = [["able", "~할 수 있는"], ["absolute", "절대적인"], ["accent", "억양, 강세"], ["accept", "받아들이다"], ["access", "접근, 접근하다"], ["accident", "사고"], ["account", "계좌, 설명하다"], ["accuse", "비난하다, 고소하다"], ["achieve", "성취하다"], ["adapt", "적응하다"], ["admire", "존경하다, 감탄하다"], ["admit", "인정하다, 입장을 허락하다"], ["adopt", "입양하다, 채택하다"], ["advance", "전진하다, 발전"], ["advantage", "이점, 장점"], ["adventure", "모험"], ["advertize", "광고하다"], ["advice", "충고"], ["advise", "조언하다"], ["affair", "일, 사건"], ["affect", "영향을 미치다"], ["afford", "여유가 있다"], ["agent", "대리인, 요원"], ["aid", "원조, 돕다"], ["aim", "목표, 겨냥하다"], ["airline", "항공사"], ["airport", "공항"], ["alarm", "경보, 놀라게 하다"], ["alcohol", "알코올, 술"], ["alive", "살아있는"], ["allow", "허락하다"], ["aloud", "소리내어"], ["alter", "바꾸다"], ["although", "비록 ~이지만"], ["altogether", "완전히, 전부"], ["amaze", "놀라게 하다"], ["ambulance", "구급차"], ["among", "~중에서"], ["amount", "양, 총액"], ["amuse", "즐겁게 하다"], ["analysis", "분석"], ["angel", "천사"], ["anger", "분노"], ["announce", "발표하다"], ["annoy", "짜증나게 하다"], ["annual", "매년의, 연간의"], ["ant", "개미"], ["anxious", "불안한, 걱정하는"], ["apart", "떨어져서"], ["appeal", "호소하다, 매력"], ["appear", "나타나다, ~인 것 같다"], ["apply", "지원하다, 적용하다"], ["appoint", "임명하다"], ["appreciate", "감사하다, 진가를 알아보다"], ["approach", "접근하다, 접근법"], ["appropriate", "적절한"], ["argue", "주장하다, 논쟁하다"], ["army", "군대"], ["arrange", "준비하다, 배열하다"], ["arrest", "체포하다"], ["article", "기사, 물품"], ["aside", "옆으로, 제쳐두고"], ["asleep", "잠이 든"], ["assess", "평가하다"], ["assign", "배정하다, 할당하다"], ["assist", "돕다, 지원하다"], ["associate", "연관시키다, 동료"], ["assume", "가정하다, 추정하다"], ["atmosphere", "대기, 분위기"], ["attach", "붙이다, 첨부하다"], ["attack", "공격하다"], ["attempt", "시도하다"], ["attend", "참석하다"], ["attention", "주의, 관심"], ["attitude", "태도"], ["attract", "끌어들이다, 매혹하다"], ["audience", "청중, 관객"], ["automatic", "자동의"], ["average", "평균의"], ["avoid", "피하다"], ["awake", "깨어있는, 깨우다"], ["award", "상, 수여하다"], ["aware", "알고 있는, 인식하는"], ["awkward", "어색한"], ["background", "배경"], ["bacon", "베이컨"], ["balance", "균형, 균형을 잡다"], ["balloon", "풍선"], ["band", "밴드, 무리"], ["bang", "쾅 소리"], ["bar", "막대, 술집"], ["bare", "벌거벗은, 맨"], ["bark", "짖다, 나무껍질"], ["basis", "근거, 기초"], ["battery", "배터리, 건전지"], ["battle", "전투"], ["bay", "만(灣)"], ["bean", "콩"], ["beat", "치다, 이기다"], ["beer", "맥주"], ["beg", "간청하다, 구걸하다"], ["belief", "믿음, 신념"], ["belong", "속하다"], ["bench", "벤치"], ["bend", "구부리다"], ["beneath", "~아래에"], ["benefit", "이익, 혜택"], ["bet", "내기하다"], ["beyond", "~을 넘어서"], ["billion", "십억"], ["bin", "쓰레기통, 통"], ["bind", "묶다, 결속시키다"], ["bit", "조금, 비트"], ["bite", "물다"], ["bitter", "쓴, 씁쓸한"], ["blame", "비난하다, 탓하다"], ["blank", "빈, 공백의"], ["blanket", "담요"], ["bless", "축복하다"], ["blind", "눈이 먼"], ["block", "막다, 구역"], ["blonde", "금발의"], ["bloom", "꽃이 피다"], ["blow", "불다"], ["boil", "끓다, 끓이다"], ["bomb", "폭탄"], ["bond", "유대, 결속"], ["boom", "호황, 붐"], ["boot", "부츠"], ["bore", "지루하게 하다"], ["boss", "상사"], ["bother", "괴롭히다, 신경쓰다"], ["bounce", "튀다"], ["bow", "절하다, 활"], ["bowl", "그릇, 사발"], ["brain", "뇌"], ["brake", "브레이크"], ["branch", "가지, 지점"], ["brand", "상표, 브랜드"], ["breast", "가슴"], ["breath", "숨, 호흡"], ["breathe", "숨쉬다"], ["brick", "벽돌"], ["brief", "간단한, 짧은"], ["brilliant", "훌륭한, 눈부신"], ["broad", "넓은"], ["bubble", "거품"], ["budget", "예산"], ["bug", "벌레, 버그"], ["bump", "부딪치다, 혹"], ["bunch", "다발, 무리"], ["burst", "터지다"], ["bury", "묻다, 매장하다"], ["bush", "덤불"], ["cable", "케이블"], ["cage", "우리, 새장"], ["calculate", "계산하다"], ["calendar", "달력"], ["calm", "차분한, 진정시키다"], ["capable", "~할 수 있는, 유능한"], ["cape", "곶, 망토"], ["capital", "수도, 자본"], ["captain", "선장, 주장"], ["career", "직업, 경력"], ["carpet", "카펫"], ["cart", "수레, 카트"], ["cast", "던지다, 배역을 정하다"], ["castle", "성"], ["catalogue", "목록, 카탈로그"], ["category", "범주, 카테고리"], ["cause", "원인, 야기하다"], ["ceiling", "천장"], ["cell", "세포, 감방"], ["century", "세기, 100년"], ["chain", "사슬, 체인"], ["chairman", "의장"], ["challenge", "도전, 도전하다"], ["champion", "챔피언, 우승자"], ["channel", "채널, 수로"], ["character", "성격, 등장인물"], ["characteristic", "특징적인, 특징"], ["charge", "청구하다, 요금"], ["charm", "매력"], ["chart", "도표, 차트"], ["chase", "쫓다, 추격하다"], ["chat", "잡담하다"], ["cheek", "뺨, 볼"], ["cheer", "환호하다, 응원하다"], ["chest", "가슴, 상자"], ["chew", "씹다"], ["chief", "최고의, 우두머리"], ["chip", "조각, 감자칩"], ["choice", "선택"], ["chop", "자르다, 찍다"], ["cigarette", "담배"], ["cinema", "영화, 영화관"], ["circumstance", "상황, 환경"], ["citizen", "시민"], ["civil", "시민의, 민간의"], ["claim", "주장하다, 청구하다"], ["clerk", "점원, 직원"], ["click", "클릭하다, 딸깍하는 소리"], ["client", "고객"], ["cliff", "절벽"], ["climate", "기후"], ["clip", "자르다, 클립"], ["clue", "단서"], ["coach", "코치, 지도하다"], ["coal", "석탄"], ["coast", "해안"], ["code", "암호, 규정"], ["coin", "동전"], ["combine", "결합하다"], ["comedy", "희극, 코미디"], ["comfort", "편안함, 위로하다"], ["command", "명령하다, 지휘하다"], ["comment", "논평, 의견"], ["commerce", "상업"], ["committee", "위원회"], ["common", "흔한, 공통의"], ["communicate", "의사소통하다"], ["community", "지역사회, 공동체"], ["compare", "비교하다"], ["complain", "불평하다"], ["complete", "완성하다, 완전한"], ["complex", "복잡한, 복합체"], ["complicate", "복잡하게 하다"], ["concentrate", "집중하다"], ["concept", "개념"], ["concern", "걱정, 관련시키다"], ["concert", "콘서트, 음악회"], ["confirm", "확인하다"], ["conflict", "갈등, 충돌"], ["confuse", "혼란시키다"], ["connect", "연결하다"], ["conscious", "의식하는, 의식이 있는"], ["consider", "고려하다"], ["constant", "끊임없는, 일정한"], ["consume", "소비하다"], ["contact", "연락하다, 접촉"], ["contain", "포함하다"], ["content", "내용, 만족하는"], ["contest", "대회, 경쟁"], ["context", "맥락, 문맥"], ["continue", "계속하다"], ["contract", "계약, 계약하다"], ["contribute", "기여하다"], ["converse", "대화하다, 반대의"], ["convince", "설득하다, 확신시키다"], ["cop", "경찰"], ["cope", "대처하다"], ["copy", "복사, 복사하다"], ["correct", "고치다, 올바른"], ["cottage", "오두막집"], ["cotton", "면, 목화"], ["cough", "기침하다, 기침"], ["council", "의회, 협의회"], ["count", "세다, 중요하다"], ["countryside", "시골, 전원지역"], ["county", "자치주, 군(郡)"], ["crack", "금, 갈라지다"], ["crash", "충돌하다, 추락하다"], ["crawl", "기다, 기어가다"], ["create", "창조하다, 만들다"], ["credit", "신용, 학점"], ["crime", "범죄"], ["crisis", "위기"], ["crisp", "바삭한"], ["crowd", "군중, 붐비다"], ["crown", "왕관"], ["cruel", "잔인한"], ["cure", "치료하다, 치료법"], ["curious", "호기심 많은"], ["curl", "곱슬거리다, 곱슬머리"], ["current", "현재의, 흐름"], ["cute", "귀여운"], ["cycle", "주기, 자전거"], ["damage", "손상, 손해"], ["dare", "감히 ~하다"], ["darling", "사랑하는 사람"], ["dawn", "새벽"], ["deal", "거래, 다루다"], ["debate", "토론하다, 토론"], ["debt", "빚, 부채"], ["deck", "갑판"], ["decorate", "장식하다"], ["defense", "방어, 수비"], ["define", "정의하다"], ["definite", "명확한"], ["degree", "정도, 학위"], ["delay", "지연시키다, 지연"], ["delight", "기쁨, 기쁘게 하다"], ["deliver", "배달하다, 전달하다"], ["demand", "요구하다, 수요"], ["demonstrate", "증명하다, 시위하다"], ["dentist", "치과의사"], ["deny", "부인하다"], ["depend", "의존하다, ~에 달려있다"], ["depress", "우울하게 하다, 침체시키다"], ["describe", "묘사하다, 설명하다"], ["desert", "사막, 버리다"], ["deserve", "~할 만하다, ~할 자격이 있다"], ["desire", "욕구, 원하다"], ["desperate", "절박한, 필사적인"], ["despite", "~에도 불구하고"], ["destroy", "파괴하다"], ["detail", "세부사항"], ["detect", "발견하다, 감지하다"], ["determine", "결정하다"], ["develop", "발전시키다, 개발하다"], ["diary", "일기"], ["dictionary", "사전"], ["diet", "식단, 다이어트"], ["dig", "파다"], ["direct", "직접적인, 지시하다"], ["dirt", "먼지, 흙"], ["disappoint", "실망시키다"], ["disc", "원반, 디스크"], ["discipline", "규율, 훈육"], ["disgust", "혐오감을 주다, 역겨움"], ["dish", "접시, 요리"], ["display", "전시하다, 진열"], ["distance", "거리"], ["district", "지역, 구역"], ["disturb", "방해하다"], ["dive", "잠수하다, 뛰어들다"], ["divide", "나누다"], ["divorce", "이혼, 이혼하다"], ["document", "문서"], ["dolphin", "돌고래"], ["domestic", "국내의, 가정의"], ["donate", "기부하다"], ["doubt", "의심하다, 의심"], ["dozen", "12개, 다스"], ["drag", "끌다"], ["drama", "드라마, 극"], ["drug", "약물, 마약"], ["due", "~하기로 되어 있는, ~때문인"], ["dump", "버리다, 쓰레기장"], ["dust", "먼지"], ["duty", "의무, 세금"], ["each", "각각의"], ["earn", "벌다, 얻다"], ["ease", "완화하다, 편안함"], ["economy", "경제"], ["edge", "가장자리, 모서리"], ["edit", "편집하다"], ["educate", "교육하다"], ["effect", "효과, 영향"], ["effort", "노력"], ["either", "둘 중 하나, ~도"], ["elect", "선출하다"], ["electric", "전기의"], ["element", "요소, 원소"], ["else", "그 밖에, 다른"], ["embarrass", "당황하게 하다"], ["emotion", "감정"], ["emphasize", "강조하다"], ["empire", "제국"], ["employ", "고용하다"], ["empty", "비어있는"], ["enemy", "적"], ["engage", "참여시키다, 관여하다"], ["engine", "엔진"], ["engineer", "기술자, 엔지니어"], ["enormous", "거대한"], ["entertain", "즐겁게 하다, 접대하다"], ["entire", "전체의"], ["envelope", "봉투"], ["equal", "동등한, 평등한"], ["escape", "탈출하다, 도망치다"], ["especial", "특별한"], ["essay", "에세이, 수필"], ["establish", "설립하다"], ["estimate", "추정하다, 견적"], ["even", "심지어, 짝수의"], ["event", "사건, 행사"], ["ever", "이제까지, 항상"], ["evidence", "증거"], ["evil", "악한, 악"], ["exact", "정확한"], ["examine", "검사하다, 조사하다"], ["except", "~을 제외하고"], ["exchange", "교환하다"], ["excite", "흥분시키다"], ["excuse", "변명, 용서하다"], ["exhaust", "지치게 하다, 소진시키다"], ["exist", "존재하다"], ["exit", "출구, 나가다"], ["expand", "확장하다"], ["expect", "기대하다, 예상하다"], ["expense", "비용"], ["experience", "경험"], ["experiment", "실험"], ["expert", "전문가"], ["explain", "설명하다"], ["expose", "노출시키다, 폭로하다"], ["express", "표현하다, 급행의"], ["extend", "연장하다, 확장하다"], ["extra", "추가의"], ["extreme", "극도의, 극단적인"], ["factor", "요인"], ["factory", "공장"], ["faint", "희미한, 기절하다"], ["fair", "공정한, 박람회"], ["faith", "믿음, 신앙"], ["familiar", "익숙한, 친숙한"], ["fancy", "화려한, 좋아하다"], ["fantastic", "환상적인"], ["fascinate", "매혹시키다"], ["fashion", "패션, 유행"], ["fault", "잘못, 결함"], ["favor", "호의, 부탁"], ["fear", "두려움, 두려워하다"], ["feature", "특징, 특별히 다루다"], ["fee", "요금, 수수료"], ["feed", "먹이다"], ["fellow", "동료, 친구"], ["female", "여성의, 암컷의"], ["fence", "울타리"], ["fever", "열, 발열"], ["few", "거의 없는, 소수의"], ["figure", "수치, 인물"], ["final", "최종의, 마지막의"], ["finance", "재정, 자금을 대다"], ["firm", "회사, 확고한"], ["fit", "적합한, 맞다"], ["flag", "깃발"], ["flame", "불꽃"], ["flash", "번쩍임, 번쩍이다"], ["flat", "평평한, 아파트"], ["flight", "비행, 항공편"], ["float", "뜨다"], ["flood", "홍수"], ["flow", "흐르다, 흐름"], ["fog", "안개"], ["fold", "접다"], ["folk", "사람들, 민속의"], ["follow", "따르다"], ["force", "힘, 강요하다"], ["foreign", "외국의"], ["forever", "영원히"], ["forgive", "용서하다"], ["forth", "앞으로"], ["fortunate", "운이 좋은"], ["fortune", "운, 재산"], ["forward", "앞으로"], ["found", "설립하다"], ["frame", "틀, 액자"], ["frankly", "솔직히"], ["freeze", "얼다, 얼리다"], ["fright", "두려움, 공포"], ["frog", "개구리"], ["frustrate", "좌절시키다"], ["fry", "튀기다"], ["function", "기능, 기능하다"], ["fund", "기금, 자금"], ["fur", "털, 모피"], ["furniture", "가구"], ["gain", "얻다"], ["garage", "차고"], ["gate", "문, 대문"], ["gather", "모으다, 모이다"], ["gear", "기어, 장비"], ["general", "일반적인, 장군"], ["gentle", "온화한, 부드러운"], ["gesture", "몸짓"], ["ghost", "유령"], ["giant", "거대한, 거인"], ["gift", "선물, 재능"], ["giraffe", "기린"], ["glance", "흘낏 보다"], ["glory", "영광"], ["glove", "장갑"], ["glue", "풀, 접착제"], ["golf", "골프"], ["gorgeous", "아주 멋진, 화려한"], ["govern", "통치하다"], ["grab", "움켜잡다"], ["grace", "우아함, 은혜"], ["grade", "등급, 학년"], ["grand", "웅장한"], ["grant", "허가하다, 보조금"], ["graph", "그래프"], ["greet", "인사하다"], ["grocery", "식료품"], ["guarantee", "보장하다, 보증"], ["guard", "경비원, 지키다"], ["guest", "손님"], ["guide", "안내하다, 안내자"], ["guilt", "죄책감, 유죄"], ["gun", "총"], ["half", "절반"], ["hall", "홀, 복도"], ["handle", "다루다, 손잡이"], ["handsome", "잘생긴"], ["happen", "일어나다, 발생하다"], ["harm", "해, 해를 끼치다"], ["health", "건강"], ["hear", "듣다"], ["heaven", "천국"], ["height", "높이, 키"], ["helicopter", "헬리콥터"], ["hell", "지옥"], ["hesitate", "주저하다, 망설이다"], ["hide", "숨기다"], ["highway", "고속도로"], ["hint", "힌트, 암시"], ["hire", "고용하다"], ["hole", "구멍"], ["honey", "꿀"], ["honor", "명예, 존경하다"], ["hotel", "호텔"], ["hug", "껴안다, 포옹"], ["huge", "거대한"], ["humor", "유머"], ["hunger", "배고픔, 굶주림"], ["hurt", "다치게 하다, 아프다"], ["identity", "정체성, 신원"], ["ignore", "무시하다"], ["ill", "아픈"], ["illustrate", "설명하다, 예시를 들다"], ["imagine", "상상하다"], ["immediate", "즉각적인"], ["impress", "깊은 인상을 주다"], ["improve", "개선하다, 향상시키다"], ["include", "포함하다"], ["income", "소득, 수입"], ["increase", "증가하다, 증가"], ["indeed", "사실, 정말"], ["indicate", "나타내다, 가리키다"], ["individual", "개인의, 개인"], ["industry", "산업"], ["influence", "영향, 영향을 미치다"], ["inform", "알리다"], ["injure", "부상을 입히다"], ["innocent", "무죄인, 순수한"], ["insist", "주장하다, 고집하다"], ["inspect", "점검하다, 검사하다"], ["instance", "사례, 예"], ["instant", "즉각적인, 순간"], ["instead", "대신에"], ["instruct", "지시하다, 가르치다"], ["instrument", "기구, 악기"], ["insure", "보험에 들다, 보장하다"], ["intend", "의도하다"], ["intense", "강렬한"], ["intent", "의도"], ["interest", "관심, 이자"], ["internal", "내부의"], ["interrupt", "방해하다, 중단시키다"], ["invent", "발명하다"], ["invest", "투자하다"], ["investigate", "조사하다"], ["involve", "포함하다, 관련시키다"], ["iron", "철, 다림질하다"], ["island", "섬"], ["item", "항목, 물품"], ["jaw", "턱"], ["jeans", "청바지"], ["joke", "농담"], ["journey", "여행"], ["joy", "기쁨"], ["judge", "판단하다, 판사"], ["junior", "후배의, 하급의"], ["justice", "정의, 사법"], ["knee", "무릎"], ["knock", "두드리다, 노크하다"], ["knowledge", "지식"], ["label", "상표, 라벨을 붙이다"], ["labor", "노동"], ["laboratory", "실험실"], ["lack", "부족, 결핍되다"], ["lamb", "새끼 양, 양고기"], ["lamp", "램프, 등"], ["lane", "차선, 좁은 길"], ["language", "언어"], ["laugh", "웃다"], ["law", "법"], ["lawn", "잔디밭"], ["lawyer", "변호사"], ["lay", "놓다, 눕히다"], ["lead", "이끌다, 납"], ["leaf", "나뭇잎"], ["league", "연맹, 리그"], ["lean", "기대다, 마른"], ["leap", "뛰다, 도약"], ["leave", "떠나다, 남기다"], ["legal", "법적인"], ["lemon", "레몬"], ["lend", "빌려주다"], ["let", "허락하다, ~하게 하다"], ["level", "수준, 단계"], ["license", "면허, 허가"], ["lid", "뚜껑"], ["lift", "들어올리다"], ["limit", "제한하다, 한계"], ["link", "연결하다, 연결"], ["list", "목록"], ["livingroom", "거실"], ["load", "짐, 싣다"], ["loan", "대출"], ["local", "지역의, 현지의"], ["locate", "위치시키다, 찾아내다"], ["lock", "잠그다, 자물쇠"], ["log", "통나무, 기록하다"], ["loose", "헐거운, 느슨한"], ["lose", "잃다, 지다"], ["loss", "손실, 상실"], ["lot", "많음, 부지"], ["loud", "시끄러운"], ["machine", "기계"], ["magazine", "잡지"], ["magic", "마법"], ["main", "주된, 주요한"], ["maintain", "유지하다"], ["major", "주요한, 전공"], ["male", "남성의, 수컷의"], ["manage", "관리하다, 해내다"], ["manner", "방식, 태도"], ["manufacture", "제조하다"], ["mark", "표시하다, 표시"], ["marvel", "경이로워하다, 경이"], ["mask", "가면, 마스크"], ["mass", "대량의, 덩어리"], ["master", "숙달하다, 주인"], ["match", "성냥, 어울리다"], ["mate", "짝, 동료"], ["matter", "문제, 물질"], ["maximum", "최대의"], ["maybe", "아마도"], ["meal", "식사"], ["mean", "의미하다, 비열한"], ["measure", "측정하다, 조치"], ["medical", "의학의, 의료의"], ["medicine", "약, 의학"], ["melon", "멜론"], ["melt", "녹다"], ["mental", "정신의"], ["mention", "언급하다"], ["menu", "메뉴"], ["mess", "엉망, 혼란"], ["message", "메시지"], ["metal", "금속"], ["method", "방법"], ["microwave", "전자레인지"], ["military", "군사의"], ["mill", "방앗간, 공장"], ["minor", "작은, 부전공"], ["minute", "분, 아주 작은"], ["mirror", "거울"], ["mission", "임무"], ["mix", "섞다"], ["modern", "현대의"], ["moment", "순간"], ["monitor", "모니터, 감시하다"], ["mood", "기분"], ["moral", "도덕적인"], ["moreover", "게다가"], ["motion", "움직임, 동작"], ["motor", "모터"], ["mount", "오르다, 산"], ["mud", "진흙"], ["muscle", "근육"], ["museum", "박물관"], ["mushroom", "버섯"], ["mystery", "미스터리, 신비"], ["nail", "손톱, 못"], ["narrow", "좁은"], ["native", "원주민의, 태생의"], ["navy", "해군"], ["neat", "깔끔한"], ["necessary", "필요한"], ["neighbor", "이웃"], ["neither", "둘 다 아닌"], ["nerve", "신경, 용기"], ["nest", "둥지"], ["net", "그물, 순(純)"], ["noise", "소음"], ["none", "아무도 ~않다"], ["noon", "정오"], ["nor", "~도 아니다"], ["notice", "알아차리다, 공지"], ["nowadays", "요즘에는"], ["nowhere", "어디에도 ~없다"], ["nut", "견과"], ["oak", "참나무"], ["object", "물체, 반대하다"], ["observe", "관찰하다"], ["obvious", "명백한"], ["occasion", "경우, 행사"], ["occur", "일어나다, 발생하다"], ["ocean", "대양, 바다"], ["odd", "이상한, 홀수의"], ["offer", "제공하다, 제안"], ["officer", "장교, 경찰관"], ["once", "한 번, 일단 ~하면"], ["opera", "오페라"], ["operate", "작동하다, 운영하다"], ["opinion", "의견"], ["oppose", "반대하다"], ["order", "명령하다, 주문하다"], ["ordinary", "평범한"], ["other", "다른"], ["otherwise", "그렇지 않으면"], ["ought", "~해야 한다"], ["oven", "오븐"], ["overall", "전반적인"], ["own", "소유하다, 자신의"], ["pack", "포장하다, 짐을 싸다"], ["pain", "고통"], ["pair", "쌍, 짝"], ["palace", "궁전"], ["pan", "냄비, 팬"], ["panic", "공황, 공포에 질리다"], ["parade", "행진, 퍼레이드"], ["paragraph", "단락"], ["pardon", "용서하다, 용서"], ["particular", "특정한, 특별한"], ["past", "과거, 지난"], ["path", "길, 경로"], ["patient", "참을성 있는, 환자"], ["pattern", "패턴, 유형"], ["pause", "잠시 멈추다, 멈춤"], ["peace", "평화"], ["pear", "배(과일)"], ["pepper", "후추"], ["per", "~마다, ~당"], ["perfect", "완벽한"], ["perform", "수행하다, 공연하다"], ["perhaps", "아마도"], ["period", "기간, 시대"], ["person", "사람"], ["pet", "애완동물"], ["photograph", "사진"], ["physical", "신체적인, 물리적인"], ["picnic", "소풍"], ["pie", "파이"], ["piece", "조각"], ["pile", "더미, 쌓다"], ["pin", "핀, 고정시키다"], ["pine", "소나무"], ["pipe", "파이프, 관"], ["pitch", "던지다, 음의 높이"], ["pity", "연민, 유감"], ["plain", "분명한, 평야"], ["plane", "비행기, 평면"], ["planet", "행성"], ["plant", "식물, 공장"], ["plate", "접시"], ["plenty", "많음, 충분"], ["plus", "더하기, 게다가"], ["pocket", "주머니"], ["poem", "시(詩)"], ["poet", "시인"], ["poison", "독, 독살하다"], ["pole", "막대, 극(極)"], ["policy", "정책"], ["polite", "예의 바른"], ["politics", "정치"], ["pollute", "오염시키다"], ["pool", "수영장, 웅덩이"], ["pop", "펑 하는 소리, 대중적인"], ["popular", "인기 있는"], ["pork", "돼지고기"], ["port", "항구"], ["possess", "소유하다"], ["possible", "가능한"], ["post", "게시하다, 우편"], ["pot", "냄비, 화분"], ["potential", "잠재적인, 잠재력"], ["pour", "붓다, 쏟다"], ["powder", "가루, 분말"], ["practical", "실용적인"], ["practice", "연습하다, 연습"], ["pray", "기도하다"], ["prefer", "선호하다"], ["pregnant", "임신한"], ["prepare", "준비하다"], ["presence", "존재, 참석"], ["press", "누르다, 언론"], ["pretend", "~인 척하다"], ["prevent", "막다, 예방하다"], ["previous", "이전의"], ["price", "가격"], ["pride", "자부심, 자존심"], ["prime", "주요한, 최고의"], ["principle", "원칙, 원리"], ["prison", "감옥"], ["privacy", "사생활"], ["private", "사적인, 개인의"], ["prize", "상, 상품"], ["probable", "있을 법한, 그럴듯한"], ["proceed", "진행하다, 나아가다"], ["process", "과정, 처리하다"], ["produce", "생산하다"], ["profession", "직업, 전문직"], ["profit", "이익"], ["progress", "진전, 진행"], ["promise", "약속하다, 약속"], ["promote", "촉진하다, 승진시키다"], ["pronounce", "발음하다"], ["proper", "적절한"], ["property", "재산, 속성"], ["propose", "제안하다"], ["protect", "보호하다"], ["protest", "항의하다, 시위"], ["proud", "자랑스러운"], ["prove", "증명하다"], ["provide", "제공하다"], ["pub", "술집"], ["public", "공공의, 대중"], ["pull", "당기다"], ["pump", "펌프, 퍼올리다"], ["punch", "주먹으로 치다"], ["punish", "처벌하다"], ["purchase", "구매하다, 구매"], ["pure", "순수한"], ["purple", "보라색의"], ["purpose", "목적"], ["puzzle", "퍼즐, 당혹하게 하다"], ["quality", "품질, 자질"], ["quarter", "4분의 1, 분기"], ["quit", "그만두다"], ["quite", "꽤, 상당히"], ["quote", "인용하다"], ["rail", "철도, 난간"], ["rainbow", "무지개"], ["raise", "올리다, 기르다"], ["range", "범위, 다양성"], ["rapid", "빠른"], ["rare", "드문, 희귀한"], ["rat", "쥐"], ["rate", "비율, 속도"], ["rather", "오히려, 꽤"], ["reach", "도달하다, 닿다"], ["react", "반응하다"], ["real", "실제의, 진짜의"], ["reason", "이유, 이성"], ["receive", "받다"], ["recent", "최근의"], ["recipe", "조리법, 레시피"], ["recognize", "인식하다, 알아보다"], ["recommend", "추천하다"], ["record", "기록, 기록하다"], ["recover", "회복하다"], ["reduce", "줄이다"], ["refer", "언급하다, 참조하다"], ["reflect", "반영하다, 반사하다"], ["refuse", "거절하다"], ["regard", "여기다, 존중"], ["region", "지역"], ["register", "등록하다"], ["regular", "규칙적인, 정기적인"], ["relate", "관련시키다, 이야기하다"], ["relax", "휴식을 취하다, 긴장을 풀다"], ["release", "풀어주다, 출시하다"], ["relief", "안도, 완화"], ["rely", "의존하다"], ["remain", "남다, 여전히 ~이다"], ["remark", "말하다, 발언"], ["remind", "상기시키다"], ["remove", "제거하다"], ["rent", "임대하다, 집세"], ["repair", "수리하다"], ["repeat", "반복하다"], ["replace", "대체하다"], ["reply", "대답하다, 대답"], ["report", "보고하다, 보고서"], ["represent", "대표하다, 나타내다"], ["request", "요청하다, 요청"], ["require", "요구하다, 필요로 하다"], ["research", "연구, 조사하다"], ["reserve", "예약하다, 비축하다"], ["resist", "저항하다"], ["resource", "자원"], ["respect", "존경하다, 존경"], ["respond", "응답하다"], ["responsible", "책임이 있는"], ["rest", "쉬다, 나머지"], ["result", "결과"], ["retire", "은퇴하다"], ["rice", "쌀, 밥"], ["ride", "타다, 탑승"], ["rise", "오르다, 상승"], ["risk", "위험, 위험을 무릅쓰다"], ["rob", "강탈하다"], ["rocket", "로켓"], ["role", "역할"], ["roll", "구르다, 두루마리"], ["roof", "지붕"], ["root", "뿌리"], ["rope", "밧줄"], ["rough", "거친"], ["round", "둥근, 한 바퀴"], ["route", "경로"], ["row", "줄, 노를 젓다"], ["royal", "왕실의"], ["rub", "문지르다"], ["rude", "무례한"], ["ruin", "파괴하다, 폐허"], ["rule", "규칙, 지배하다"], ["rush", "서두르다"], ["sail", "항해하다, 돛"], ["salary", "급여"], ["sample", "견본, 표본"], ["satisfy", "만족시키다"], ["sauce", "소스"], ["scale", "규모, 저울"], ["scare", "겁주다, 겁먹게 하다"], ["scarf", "스카프, 목도리"], ["scene", "장면"], ["schedule", "일정, 일정을 잡다"], ["scratch", "긁다, 긁힌 자국"], ["scream", "비명을 지르다"], ["screen", "화면, 가리다"], ["seal", "봉인하다, 물개"], ["search", "찾다, 검색"], ["seat", "자리, 좌석"], ["secret", "비밀의, 비밀"], ["secretary", "비서, 장관"], ["section", "부분, 구역"], ["secure", "안전한, 확보하다"], ["seed", "씨앗"], ["seek", "찾다, 추구하다"], ["seem", "~인 것 같다"], ["select", "선택하다"], ["self", "자아, 자신"], ["senior", "고위의, 연장자"], ["sense", "감각, 느끼다"], ["sentence", "문장, 형(刑)"], ["separate", "분리하다, 분리된"], ["series", "연속, 시리즈"], ["serious", "진지한, 심각한"], ["serve", "제공하다, 봉사하다"], ["session", "회기, 시간"], ["settle", "정착하다, 해결하다"], ["several", "몇몇의"], ["sew", "바느질하다"], ["sex", "성별"], ["shade", "그늘, 색조"], ["shadow", "그림자"], ["shake", "흔들다"], ["shall", "~할 것이다"], ["shame", "수치심"], ["shape", "모양, 형성하다"], ["share", "공유하다, 몫"], ["sharp", "날카로운"], ["shave", "면도하다"], ["sheep", "양"], ["sheet", "시트, 종이"], ["shelf", "선반"], ["shell", "껍질, 조개껍데기"], ["shelter", "피난처, 보호하다"], ["shift", "이동하다, 교대"], ["shine", "빛나다"], ["shock", "충격"], ["shoot", "쏘다"], ["shore", "해안"], ["shoulder", "어깨"], ["shout", "소리치다"], ["shower", "샤워, 소나기"], ["shut", "닫다"], ["sight", "시력, 광경"], ["sign", "표지판, 서명하다"], ["silly", "어리석은"], ["silver", "은"], ["similar", "비슷한"], ["simple", "간단한"], ["since", "~이래로, ~때문에"], ["single", "단 하나의, 독신의"], ["sink", "가라앉다, 싱크대"], ["site", "장소, 부지"], ["situate", "위치시키다"], ["skill", "기술, 능력"], ["slave", "노예"], ["slide", "미끄러지다, 미끄럼틀"], ["slight", "약간의, 경미한"], ["slip", "미끄러지다, 실수"], ["smart", "똑똑한"], ["smash", "박살내다, 부수다"], ["smoke", "연기, 담배를 피우다"], ["smooth", "매끄러운"], ["snack", "간식"], ["snake", "뱀"], ["snap", "딱 부러지다, 스냅사진"], ["social", "사회의"], ["society", "사회"], ["soil", "흙, 토양"], ["soldier", "군인"], ["solid", "고체의, 단단한"], ["solve", "해결하다"], ["somewhat", "다소, 약간"], ["soon", "곧"], ["sore", "아픈, 쓰라린"], ["sort", "종류, 분류하다"], ["soul", "영혼"], ["sour", "신, 시큼한"], ["source", "원천, 출처"], ["spare", "여분의, 아끼다"], ["species", "종(種)"], ["specific", "구체적인, 특정한"], ["speech", "연설"], ["spell", "철자를 쓰다, 주문(呪文)"], ["spend", "쓰다, 소비하다"], ["spin", "돌다, 회전시키다"], ["spirit", "정신, 영혼"], ["spoil", "망치다, 상하다"], ["sponsor", "후원하다, 후원자"], ["spot", "장소, 얼룩"], ["spray", "뿌리다, 분무기"], ["spread", "펼치다, 퍼지다"], ["spy", "스파이, 염탐하다"], ["square", "정사각형, 광장"], ["stable", "안정적인, 마구간"], ["stage", "무대, 단계"], ["stairs", "계단"], ["stamp", "우표, 도장을 찍다"], ["standard", "기준, 표준"], ["stare", "응시하다"], ["state", "상태, 국가"], ["station", "역, 방송국"], ["steady", "꾸준한, 안정적인"], ["steal", "훔치다"], ["steam", "증기"], ["steel", "강철"], ["step", "걸음, 단계"], ["stick", "막대기, 붙이다"], ["still", "여전히, 조용한"], ["stir", "젓다, 뒤섞다"], ["stock", "재고, 주식"], ["stomach", "위, 배"], ["storm", "폭풍"], ["straight", "곧은, 똑바로"], ["strange", "이상한, 낯선"], ["strategy", "전략"], ["strawberry", "딸기"], ["stream", "개울, 흐르다"], ["stress", "스트레스, 강조하다"], ["stretch", "늘이다, 뻗다"], ["strike", "치다, 파업"], ["string", "끈, 줄"], ["structure", "구조"], ["struggle", "투쟁하다, 애쓰다"], ["studio", "작업실, 스튜디오"], ["stuff", "물건, 채우다"], ["subject", "주제, 과목"], ["succeed", "성공하다, 뒤를 잇다"], ["success", "성공"], ["such", "그러한"], ["sudden", "갑작스러운"], ["suffer", "고통받다"], ["suggest", "제안하다"], ["suit", "정장, 적합하다"], ["sum", "합계, 총액"], ["super", "매우, 뛰어난"], ["supper", "저녁 식사"], ["supply", "공급하다, 공급"], ["support", "지지하다, 지원"], ["suppose", "가정하다, 추측하다"], ["surface", "표면"], ["surprise", "놀라움, 놀라게 하다"], ["surround", "둘러싸다"], ["survey", "설문조사, 조사하다"], ["survive", "살아남다"], ["suspect", "의심하다, 용의자"], ["swallow", "삼키다, 제비"], ["sweater", "스웨터"], ["sweep", "쓸다, 청소하다"], ["sweet", "달콤한"], ["swing", "흔들다, 그네"], ["switch", "전환하다, 스위치"], ["system", "체계, 시스템"], ["tale", "이야기"], ["tank", "탱크, 수조"], ["tap", "두드리다, 수도꼭지"], ["target", "목표, 대상"], ["tax", "세금"], ["tea", "차(茶)"], ["tear", "눈물, 찢다"], ["technique", "기술, 기법"], ["technology", "기술"], ["teenage", "십대의"], ["temperature", "온도"], ["tend", "~하는 경향이 있다"], ["tense", "긴장한, 시제"], ["term", "용어, 학기"], ["terrible", "끔찍한"], ["text", "본문, 문자"], ["theater", "극장"], ["then", "그때, 그러면"], ["theory", "이론"], ["therefore", "그러므로"], ["thick", "두꺼운"], ["thief", "도둑"], ["thin", "얇은"], ["though", "비록 ~이지만"], ["thousand", "천(1000)"], ["threat", "위협"], ["throat", "목구멍"], ["through", "~을 통해"], ["throw", "던지다"], ["thus", "따라서, 이렇게 하여"], ["tide", "조수, 조류"], ["tie", "묶다, 넥타이"], ["tight", "꽉 조이는, 단단한"], ["till", "~까지"], ["tin", "주석, 깡통"], ["tiny", "아주 작은"], ["tip", "끝, 조언"], ["title", "제목, 직함"], ["toast", "토스트, 건배"], ["toe", "발가락"], ["toilet", "화장실"], ["tone", "어조, 톤"], ["tongue", "혀"], ["tool", "도구"], ["topic", "주제"], ["total", "총, 전체의"], ["tough", "힘든, 강인한"], ["tour", "여행, 관광"], ["toward", "~을 향하여"], ["towel", "수건"], ["tower", "탑"], ["trace", "추적하다, 흔적"], ["trade", "무역, 거래하다"], ["tradition", "전통"], ["traffic", "교통"], ["transfer", "이동하다, 옮기다"], ["transport", "수송하다, 운송"], ["trap", "덫, 가두다"], ["tray", "쟁반"], ["treat", "대하다, 치료하다"], ["triangle", "삼각형"], ["trick", "속임수, 속이다"], ["trouble", "문제, 곤란"], ["trunk", "나무 몸통, 트렁크"], ["trust", "신뢰하다, 신뢰"], ["truth", "진실"], ["tune", "곡조, 조율하다"], ["twin", "쌍둥이"], ["twist", "비틀다, 꼬다"], ["uniform", "제복, 균일한"], ["unit", "단위, 구성단위"], ["unite", "연합하다, 통합하다"], ["university", "대학교"], ["unless", "~하지 않는 한"], ["until", "~까지"], ["upon", "~위에"], ["upper", "위쪽의"], ["upset", "속상하게 하다, 속상한"], ["valley", "계곡"], ["value", "가치, 소중히 여기다"], ["van", "밴, 승합차"], ["various", "다양한"], ["vary", "다양하다, 달라지다"], ["vehicle", "차량, 탈것"], ["version", "버전, 형태"], ["victim", "희생자"], ["view", "견해, 보다"], ["villa", "별장"], ["village", "마을"], ["violent", "폭력적인"], ["vision", "시력, 비전"], ["volume", "양, 음량"], ["volunteer", "자원봉사자, 자원하다"], ["vote", "투표하다, 투표"], ["wage", "임금"], ["warn", "경고하다"], ["waste", "낭비하다, 쓰레기"], ["wave", "파도, 흔들다"], ["weak", "약한"], ["weapon", "무기"], ["weigh", "무게를 달다"], ["whale", "고래"], ["wheel", "바퀴"], ["whether", "~인지 아닌지"], ["which", "어느, 어느 것"], ["while", "~하는 동안"], ["whisper", "속삭이다"], ["whistle", "휘파람, 호루라기"], ["whole", "전체의"], ["wide", "넓은"], ["wild", "야생의"], ["wing", "날개"], ["wipe", "닦다"], ["wire", "철사, 전선"], ["wise", "현명한"], ["within", "~이내에"], ["without", "~없이"], ["wonder", "궁금해하다, 경이"], ["wool", "양모"], ["worth", "가치가 있는"], ["would", "~일 것이다"], ["wound", "상처, 상처를 입히다"], ["wrap", "포장하다, 감싸다"], ["yell", "소리지르다"], ["yet", "아직"], ["zebra", "얼룩말"], ["zero", "영, 제로"]];
+
+// 원문 [ ] 안에 함께 묶여 있던 '헷갈리기 쉬운 단어' 묶음 (VOCAB의 영단어 기준)
+const GROUPS = []; // 중등 필수 단어는 묶음 정보 없음 (랜덤 모드만 사용)
+const VOCAB_MAP = {};
+VOCAB.forEach(v => { VOCAB_MAP[v[0]] = v[1]; });
+
+/* ===================== 진행상황 저장(구글 시트) 연동 ===================== */
+// 아래 URL을 Apps Script 배포 후 받은 "웹 앱 URL"로 바꿔주세요.
+const APPS_SCRIPT_URL = ""; // TODO: 새 Apps Script 웹 앱 URL
+
+let playerName = '';
+let saveTimer = null;
+let masteredWords = new Set(); // English words the student has ever answered correctly
+let wrongCounts = {}; // { englishWord: totalTimesWrong } accumulated across all sessions
+
+function saveIndicatorEl() {
+  return document.getElementById('saveIndicator');
+}
+
+function updateMasteryDisplay() {
+  const fill = document.getElementById('masteryBarFill');
+  const text = document.getElementById('masteryBarText');
+  const total = VOCAB.length;
+  const done = masteredWords.size;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  if (fill) fill.style.width = pct + '%';
+  if (text) text.textContent = `전체 어휘 진행: ${done} / ${total} (${pct}%)`;
+}
+
+function apiSave(state) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('http') !== 0) return;
+  const el = saveIndicatorEl();
+  if (el) el.textContent = '저장 중...';
+  const payload = Object.assign({
+    name: playerName,
+    masteredWords: Array.from(masteredWords),
+    wrongCounts: wrongCounts
+  }, state);
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(() => {
+    if (el) el.textContent = '저장됨 ✓';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { if (el) el.textContent = ''; }, 1500);
+  }).catch(() => {
+    if (el) el.textContent = '저장 실패 (인터넷 확인)';
+  });
+}
+
+function apiLoad(name) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('http') !== 0) {
+    return Promise.resolve({ found: false });
+  }
+  return fetch(APPS_SCRIPT_URL + '?name=' + encodeURIComponent(name))
+    .then(r => r.json())
+    .catch(() => ({ found: false }));
+}
+
+/* ===================== 이름 입력 게이트 ===================== */
+const nameGate = document.getElementById('nameGate');
+const appRoot = document.getElementById('appRoot');
+const nameInput = document.getElementById('nameInput');
+const nameSubmitBtn = document.getElementById('nameSubmitBtn');
+const nameGateStatus = document.getElementById('nameGateStatus');
+const playerNameTag = document.getElementById('playerNameTag');
+const switchUserBtn = document.getElementById('switchUserBtn');
+
+let resumedState = null; // set if we found saved progress to resume
+
+function enterApp(name, loaded) {
+  playerName = name;
+  playerNameTag.textContent = name;
+  nameGate.classList.add('hidden');
+  appRoot.classList.remove('hidden');
+  masteredWords = new Set((loaded && loaded.found && loaded.masteredWords) ? loaded.masteredWords : []);
+  wrongCounts = (loaded && loaded.found && loaded.wrongCounts) ? loaded.wrongCounts : {};
+  updateMasteryDisplay();
+  resumedState = (loaded && loaded.found && loaded.status !== '완료') ? loaded : null;
+  initGameForPlayer();
+}
+
+nameSubmitBtn.addEventListener('click', () => {
+  const name = nameInput.value.trim();
+  if (!name) {
+    nameGateStatus.textContent = '이름을 입력해주세요.';
+    return;
+  }
+  // iOS Safari 등은 '사용자가 직접 누른 순간'에만 음성 재생을 허용하므로,
+  // 데이터를 불러오는 비동기 작업을 시작하기 전에 여기서 먼저 음성 엔진을 한 번 깨워둔다.
+  try {
+    const unlock = new SpeechSynthesisUtterance(' ');
+    unlock.volume = 0.01;
+    window.speechSynthesis.speak(unlock);
+  } catch (e) { /* TTS unavailable */ }
+
+  nameGateStatus.textContent = '이전 진행 상황을 확인하는 중...';
+  nameSubmitBtn.disabled = true;
+  apiLoad(name).then(loaded => {
+    nameSubmitBtn.disabled = false;
+    try { localStorage.setItem('middle_voca_last_name', name); } catch (e) {}
+    enterApp(name, loaded);
+  });
+});
+nameInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') nameSubmitBtn.click();
+});
+try {
+  const lastName = localStorage.getItem('middle_voca_last_name');
+  if (lastName) nameInput.value = lastName;
+} catch (e) {}
+
+switchUserBtn.addEventListener('click', () => {
+  appRoot.classList.add('hidden');
+  nameGate.classList.remove('hidden');
+  nameGateStatus.textContent = '';
+});
+
+try {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+} catch (e) { /* TTS unavailable */ }
+
+// 속도: 학생이 슬라이더로 조절(기본 0.8). 한국어는 영어보다 약간 빠르게.
+let speechRate = 0.8;
+try { const r = parseFloat(localStorage.getItem('middle_voca_rate')); if (r >= 0.5 && r <= 1.1) speechRate = r; } catch (e) {}
+const speedSlider = document.getElementById('speedSlider');
+const speedLabel = document.getElementById('speedLabel');
+speedSlider.value = speechRate;
+speedLabel.textContent = speechRate.toFixed(2).replace(/0$/, '') + 'x';
+speedSlider.addEventListener('input', () => {
+  speechRate = parseFloat(speedSlider.value);
+  speedLabel.textContent = speechRate.toFixed(2).replace(/0$/, '') + 'x';
+  try { localStorage.setItem('middle_voca_rate', speechRate); } catch (e) {}
+});
+speedSlider.addEventListener('change', () => { if (typeof currentItem !== 'undefined' && currentItem) speakCurrent(); });
+
+// 자연스러운 음성 우선 선택 (Natural/Neural/Google/Premium 등), 없으면 해당 언어 기본 음성
+const GOOD_VOICE = /natural|neural|online|premium|enhanced|google|aria|jenny|samantha|sunhi|heami/i;
+function pickVoice(lang) {
+  try {
+    const base = lang.slice(0, 2).toLowerCase();
+    const list = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().replace('_', '-').indexOf(base) === 0);
+    const exact = list.filter(v => v.lang.replace('_', '-').toLowerCase() === lang.toLowerCase());
+    const pool = exact.length ? exact : list;
+    return pool.find(v => GOOD_VOICE.test(v.name)) || pool[0] || null;
+  } catch (e) { return null; }
+}
+
+function speak(text, lang) {
+  try {
+    const doSpeak = () => {
+      // 앞쪽 구두점이 짧은 무음 구간이 되어 첫 음절이 잘리는 것을 막는다.
+      // 쉼표 뒤에 자연스러운 호흡이 생기도록 단어 끝에도 마침표를 붙인다.
+      const u = new SpeechSynthesisUtterance(', , ' + text + '.');
+      u.lang = lang;
+      const v = pickVoice(lang);
+      if (v) u.voice = v;
+      u.rate = lang === 'ko-KR' ? Math.min(1.05, speechRate + 0.05) : speechRate;
+      u.pitch = 1;
+      window.speechSynthesis.speak(u);
+    };
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      window.speechSynthesis.cancel();
+      setTimeout(doSpeak, 120);
+    } else {
+      doSpeak();
+    }
+  } catch (e) { /* TTS unavailable */ }
+}
+// Extracts a short, speakable/displayable Korean meaning from a fuller dictionary-style
+// entry: strips a leading "(...)" usage note, then cuts at the first comma/semicolon/
+// colon/parenthesis so entries like "(가격을) 끌어올리다" don't come out blank.
+function cleanKoreanText(s) {
+  let t = s.replace(/^\([^)]*\)\s*/, '');
+  t = t.split(/[,;:(]/)[0].trim();
+  if (!t) {
+    t = s.replace(/[()]/g, '');
+    t = t.split(/[,;:]/)[0].trim();
+  }
+  return t || s;
+}
+
+// For speech only: "~" is textbook shorthand for a blank (e.g. "~에 대처하다").
+// Reading the raw tilde sounds garbled, so read it aloud as "뭐뭐" instead.
+function speakableKorean(s) {
+  return cleanKoreanText(s).replace(/~/g, '뭐뭐');
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ===================== Tabs ===================== */
+const tabQuizBtn = document.getElementById('tabQuizBtn');
+const tabMatchBtn = document.getElementById('tabMatchBtn');
+const quizPanel = document.getElementById('quizPanel');
+const matchPanel = document.getElementById('matchPanel');
+
+tabQuizBtn.addEventListener('click', () => {
+  tabQuizBtn.classList.add('active');
+  tabMatchBtn.classList.remove('active');
+  quizPanel.classList.remove('hidden');
+  matchPanel.classList.add('hidden');
+});
+tabMatchBtn.addEventListener('click', () => {
+  tabMatchBtn.classList.add('active');
+  tabQuizBtn.classList.remove('active');
+  matchPanel.classList.remove('hidden');
+  quizPanel.classList.add('hidden');
+  if (!matchInitialized) startMatchGame();
+});
+
+/* ===================== Listening quiz ===================== */
+const FIRST_ROUND_SIZE = 30;
+const MAX_ROUNDS = 5;
+let quizDirection = 'eng'; // 'eng' = hear English, choose Korean; 'kor' = hear Korean, choose English
+let currentItem = null;
+let currentChoices = [];
+let answered = false;
+let score = 0;
+let roundNumber = 1;
+let roundPool = [];
+let roundIndex = 0;
+let roundWrong = [];
+let attemptCounts = {}; // per-round retry counter, keyed by English word (reset each round)
+const MAX_ATTEMPTS_PER_ROUND = 2; // a missed word gets requeued once, then counts as wrong for the round
+
+const dirEngBtn = document.getElementById('dirEngBtn');
+const dirKorBtn = document.getElementById('dirKorBtn');
+const speakBtn = document.getElementById('speakBtn');
+const choicesBox = document.getElementById('choicesBox');
+const nextBtn = document.getElementById('nextBtn');
+const quizIndexEl = document.getElementById('quizIndex');
+const quizScoreEl = document.getElementById('quizScore');
+const quizTotalEl = document.getElementById('quizTotal');
+const roundNumLabel = document.getElementById('roundNumLabel');
+const roundSizeLabel = document.getElementById('roundSizeLabel');
+const roundTransition = document.getElementById('roundTransition');
+const quizQuestionArea = document.getElementById('quizQuestionArea');
+const quizResult = document.getElementById('quizResult');
+const roundScoreText = document.getElementById('roundScoreText');
+const wrongListTitle = document.getElementById('wrongListTitle');
+const wrongList = document.getElementById('wrongList');
+const restartBtn = document.getElementById('restartBtn');
+
+dirEngBtn.addEventListener('click', () => {
+  quizDirection = 'eng';
+  dirEngBtn.classList.add('active');
+  dirKorBtn.classList.remove('active');
+  startSession();
+});
+dirKorBtn.addEventListener('click', () => {
+  quizDirection = 'kor';
+  dirKorBtn.classList.add('active');
+  dirEngBtn.classList.remove('active');
+  startSession();
+});
+
+function pickDistractors(correct, n) {
+  const pool = VOCAB.filter(v => v[0] !== correct[0]);
+  return shuffle(pool).slice(0, n);
+}
+
+function startSession() {
+  roundNumber = 1;
+  const unmastered = VOCAB.filter(v => !masteredWords.has(v[0]));
+  if (unmastered.length === 0) {
+    // everything mastered at least once -> full review mode
+    roundTransition.textContent = '🎉 전체 1200단어를 모두 한 번씩 맞혀봤어요! 복습 모드로 계속합니다.';
+    roundTransition.classList.remove('hidden');
+    setTimeout(() => roundTransition.classList.add('hidden'), 2200);
+    roundPool = shuffle(VOCAB).slice(0, FIRST_ROUND_SIZE);
+  } else {
+    roundPool = shuffle(unmastered).slice(0, FIRST_ROUND_SIZE);
+  }
+  beginRound();
+}
+
+function resumeRound(state) {
+  quizDirection = state.direction === 'kor' ? 'kor' : 'eng';
+  if (quizDirection === 'eng') {
+    dirEngBtn.classList.add('active'); dirKorBtn.classList.remove('active');
+  } else {
+    dirKorBtn.classList.add('active'); dirEngBtn.classList.remove('active');
+  }
+  roundNumber = state.roundNumber || 1;
+  roundPool = (state.roundPool && state.roundPool.length) ? state.roundPool : shuffle(VOCAB).slice(0, FIRST_ROUND_SIZE);
+  roundIndex = state.roundIndex || 0;
+  score = state.score || 0;
+  roundWrong = state.roundWrong || [];
+  attemptCounts = {};
+  quizResult.classList.add('hidden');
+  quizQuestionArea.classList.remove('hidden');
+  quizScoreEl.textContent = score;
+  quizTotalEl.textContent = roundPool.length;
+  roundNumLabel.textContent = roundNumber;
+  roundSizeLabel.textContent = roundPool.length;
+  roundTransition.textContent = `이어서 시작합니다 · ${roundNumber}차 라운드`;
+  roundTransition.classList.remove('hidden');
+  setTimeout(() => roundTransition.classList.add('hidden'), 1600);
+  nextQuestion();
+}
+
+function initGameForPlayer() {
+  if (resumedState) {
+    resumeRound(resumedState);
+  } else {
+    startSession();
+  }
+}
+
+function beginRound() {
+  roundIndex = 0;
+  score = 0;
+  roundWrong = [];
+  attemptCounts = {};
+  quizResult.classList.add('hidden');
+  quizQuestionArea.classList.remove('hidden');
+  quizScoreEl.textContent = 0;
+  quizTotalEl.textContent = roundPool.length;
+  roundNumLabel.textContent = roundNumber;
+  roundSizeLabel.textContent = roundPool.length;
+  nextQuestion();
+}
+
+function nextQuestion() {
+  if (roundIndex >= roundPool.length) {
+    finishRound();
+    return;
+  }
+  answered = false;
+  roundIndex++;
+  quizIndexEl.textContent = roundIndex;
+  quizTotalEl.textContent = roundPool.length;
+  roundSizeLabel.textContent = roundPool.length;
+
+  currentItem = roundPool[roundIndex - 1];
+  const distractors = pickDistractors(currentItem, 3);
+  currentChoices = shuffle([currentItem, ...distractors]);
+
+  choicesBox.innerHTML = '';
+  currentChoices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = quizDirection === 'eng' ? choice[1] : choice[0];
+    btn.addEventListener('click', () => selectChoice(btn, choice));
+    choicesBox.appendChild(btn);
+  });
+
+  nextBtn.disabled = true;
+  nextBtn.textContent = roundIndex === roundPool.length ? '라운드 결과' : '다음 문제';
+  speakCurrent();
+}
+
+function speakCurrent() {
+  if (quizDirection === 'eng') {
+    speak(currentItem[0], 'en-US');
+  } else {
+    speak(speakableKorean(currentItem[1]), 'ko-KR');
+  }
+}
+
+speakBtn.addEventListener('click', speakCurrent);
+
+function selectChoice(btn, choice) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = choice[0] === currentItem[0];
+  if (isCorrect) {
+    btn.classList.add('correct');
+    score++;
+    masteredWords.add(currentItem[0]);
+    updateMasteryDisplay();
+  } else {
+    btn.classList.add('wrong');
+    const word = currentItem[0];
+    wrongCounts[word] = (wrongCounts[word] || 0) + 1; // cumulative, across all sessions
+    attemptCounts[word] = (attemptCounts[word] || 0) + 1; // this round only
+
+    if (attemptCounts[word] < MAX_ATTEMPTS_PER_ROUND) {
+      // requeue soon (3~5 questions later) so the word gets another shot right away
+      const gap = 3 + Math.floor(Math.random() * 3);
+      const insertAt = Math.min(roundIndex + gap, roundPool.length);
+      roundPool.splice(insertAt, 0, currentItem);
+    } else {
+      // already retried once and missed again -> counts as wrong for this round
+      roundWrong.push(currentItem);
+    }
+
+    // reveal correct
+    [...choicesBox.children].forEach((c, i) => {
+      if (currentChoices[i][0] === currentItem[0]) c.classList.add('correct');
+    });
+  }
+  [...choicesBox.children].forEach(c => c.disabled = true);
+  quizScoreEl.textContent = score;
+  nextBtn.disabled = false;
+
+  apiSave({
+    status: 'in_progress',
+    direction: quizDirection,
+    roundNumber: roundNumber,
+    roundIndex: roundIndex,
+    roundPool: roundPool,
+    score: score,
+    roundWrong: roundWrong,
+    lastAnswerCorrect: isCorrect
+  });
+}
+
+function finishRound() {
+  // perfect round, or we've used up all 5 rounds -> end session and show final list
+  if (roundWrong.length === 0 || roundNumber >= MAX_ROUNDS) {
+    showFinalResult();
+    return;
+  }
+  // otherwise cascade into a new round made only of this round's misses
+  roundNumber++;
+  roundPool = shuffle(roundWrong);
+  roundTransition.textContent = `${roundNumber}차 라운드 시작 · 복습 단어 ${roundPool.length}개`;
+  roundTransition.classList.remove('hidden');
+  setTimeout(() => {
+    roundTransition.classList.add('hidden');
+  }, 1600);
+  beginRound();
+}
+
+function showFinalResult() {
+  quizQuestionArea.classList.add('hidden');
+  quizResult.classList.remove('hidden');
+  roundScoreText.textContent = `${roundNumber}차 라운드까지 완료 · 이번 라운드 ${roundPool.length}문제 중 ${score}개 정답`;
+
+  apiSave({
+    status: 'done',
+    direction: quizDirection,
+    roundNumber: roundNumber,
+    roundIndex: roundIndex,
+    roundPool: roundPool,
+    score: score,
+    roundWrong: roundWrong,
+    finalWrongWords: roundWrong
+  });
+
+  if (roundWrong.length === 0) {
+    wrongListTitle.textContent = '';
+    wrongList.innerHTML = '<div class="no-wrong">🎉 모든 단어를 다 맞혔어요!</div>';
+  } else {
+    wrongListTitle.textContent = `끝까지 틀린 단어 ${roundWrong.length}개 — 복습해보세요`;
+    wrongList.innerHTML = '';
+    roundWrong.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'wrong-item';
+      div.innerHTML = `<span class="w-eng"></span><span class="w-kor"></span>`;
+      div.querySelector('.w-eng').textContent = item[0];
+      div.querySelector('.w-kor').textContent = item[1];
+      wrongList.appendChild(div);
+    });
+  }
+}
+
+nextBtn.addEventListener('click', nextQuestion);
+restartBtn.addEventListener('click', startSession);
+
+/* ===================== Matching game ===================== */
+let matchInitialized = false;
+let selectedCards = [];
+let matchedCount = 0;
+let totalPairs = 0;
+let attempts = 0;
+let lockBoard = false;
+
+const pairCountSel = document.getElementById('pairCount');
+const matchModeSel = document.getElementById('matchMode');
+const newGameBtn = document.getElementById('newGameBtn');
+const matchGrid = document.getElementById('matchGrid');
+const matchStatus = document.getElementById('matchStatus');
+const winBanner = document.getElementById('winBanner');
+const groupInfo = document.getElementById('groupInfo');
+let currentGroups = [];
+
+newGameBtn.addEventListener('click', startMatchGame);
+matchModeSel.addEventListener('change', startMatchGame);
+pairCountSel.addEventListener('change', startMatchGame);
+
+// 묶음 모드: 같은 묶음의 단어들을 통째로 넣어서, 뜻이 비슷한 카드끼리 섞이게 한다.
+function pickGroupItems(target) {
+  const pool = shuffle(GROUPS);
+  const chosenGroups = [];
+  let count = 0;
+  for (const g of pool) {
+    if (count >= target) break;
+    if (count + g.length <= target) {
+      chosenGroups.push(g);
+      count += g.length;
+    }
+  }
+  // 아직 자리가 남으면 가장 작은 묶음으로 채워본다
+  if (count < target) {
+    for (const g of pool) {
+      if (chosenGroups.indexOf(g) !== -1) continue;
+      if (count + g.length <= target) { chosenGroups.push(g); count += g.length; }
+      if (count >= target) break;
+    }
+  }
+  currentGroups = chosenGroups;
+  const items = [];
+  const seen = new Set();
+  chosenGroups.forEach(g => g.forEach(w => {
+    if (!seen.has(w) && VOCAB_MAP[w] !== undefined) {
+      seen.add(w);
+      items.push([w, VOCAB_MAP[w]]);
+    }
+  }));
+  return items;
+}
+
+function startMatchGame() {
+  matchInitialized = true;
+  winBanner.classList.add('hidden');
+  groupInfo.classList.add('hidden');
+  selectedCards = [];
+  matchedCount = 0;
+  attempts = 0;
+  lockBoard = false;
+  const target = parseInt(pairCountSel.value, 10);
+  const mode = matchModeSel.value;
+
+  let chosen;
+  if (mode === 'group') {
+    chosen = pickGroupItems(target);
+  } else {
+    currentGroups = [];
+    chosen = shuffle(VOCAB).slice(0, target);
+  }
+  totalPairs = chosen.length;
+
+  // 묶음 모드에서는 뜻 전체를 보여줘서 비슷한 단어끼리도 구분되게 한다.
+  // 같은 뜻이 적힌 카드는 서로 같은 짝으로 인정한다(meaningKey).
+  const cards = [];
+  chosen.forEach((item, i) => {
+    const korText = mode === 'group' ? item[1].replace(/^\([^)]*\)\s*/, '') : cleanKoreanText(item[1]);
+    const key = korText;
+    cards.push({ type: 'eng', text: item[0], pairId: i, meaningKey: key });
+    cards.push({ type: 'kor', text: korText, pairId: i, meaningKey: key });
+  });
+  const shuffled = shuffle(cards);
+
+  matchGrid.innerHTML = '';
+  shuffled.forEach(card => {
+    const div = document.createElement('div');
+    div.className = 'match-card' + (card.type === 'eng' ? ' eng' : '');
+    div.textContent = card.text;
+    div.dataset.pairId = card.pairId;
+    div.dataset.type = card.type;
+    div.addEventListener('click', () => onCardClick(div, card));
+    matchGrid.appendChild(div);
+  });
+
+  updateMatchStatus();
+}
+
+function updateMatchStatus() {
+  matchStatus.textContent = `시도 ${attempts}회 · 남은 쌍 ${totalPairs - matchedCount}개`;
+}
+
+function showGroupInfo() {
+  if (!currentGroups.length) return;
+  let h = '<div class="gi-title">이번 판의 헷갈리는 단어 묶음 — 차이를 기억해두세요</div>';
+  currentGroups.forEach(g => {
+    h += '<div class="gi-group">';
+    g.forEach(w => {
+      if (VOCAB_MAP[w] === undefined) return;
+      const safeW = w.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      const safeM = VOCAB_MAP[w].replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      h += '<span class="gi-item"><b>' + safeW + '</b> — ' + safeM + '</span>';
+    });
+    h += '</div>';
+  });
+  groupInfo.innerHTML = h;
+  groupInfo.classList.remove('hidden');
+}
+
+function onCardClick(div, card) {
+  if (lockBoard) return;
+  if (div.classList.contains('matched') || div.classList.contains('selected')) return;
+  if (selectedCards.length >= 2) return;
+
+  div.classList.add('selected');
+  const spokenText = card.type === 'eng' ? card.text : cleanKoreanText(card.text).replace(/~/g, '뭐뭐');
+  speak(spokenText, card.type === 'eng' ? 'en-US' : 'ko-KR');
+  selectedCards.push({ div, card });
+
+  if (selectedCards.length === 2) {
+    attempts++;
+    updateMatchStatus();
+    const [a, b] = selectedCards;
+    const isMatch = a.card.type !== b.card.type &&
+      (a.card.pairId === b.card.pairId || a.card.meaningKey === b.card.meaningKey);
+
+    // 단어 카드 1장 + 뜻 카드 1장으로 짝을 시도한 경우에만, 그 단어를 진행률/오답 기록에 반영한다
+    // (단어-단어, 뜻-뜻 조합은 실제 뜻을 아는지 테스트한 게 아니므로 반영하지 않음)
+    const engCard = a.card.type === 'eng' ? a.card : (b.card.type === 'eng' ? b.card : null);
+    const testedWord = (a.card.type !== b.card.type && engCard) ? engCard.text : null;
+
+    if (isMatch) {
+      a.div.classList.add('matched');
+      b.div.classList.add('matched');
+      a.div.classList.remove('selected');
+      b.div.classList.remove('selected');
+      matchedCount++;
+      selectedCards = [];
+      updateMatchStatus();
+      if (testedWord) {
+        masteredWords.add(testedWord);
+        updateMasteryDisplay();
+        apiSave({ status: 'in_progress', direction: quizDirection, roundNumber: roundNumber, roundIndex: roundIndex, roundPool: roundPool, score: score, roundWrong: roundWrong });
+      }
+      if (matchedCount === totalPairs) {
+        winBanner.classList.remove('hidden');
+        showGroupInfo();
+      }
+    } else {
+      if (testedWord) {
+        wrongCounts[testedWord] = (wrongCounts[testedWord] || 0) + 1;
+        apiSave({ status: 'in_progress', direction: quizDirection, roundNumber: roundNumber, roundIndex: roundIndex, roundPool: roundPool, score: score, roundWrong: roundWrong });
+      }
+      lockBoard = true;
+      setTimeout(() => {
+        a.div.classList.remove('selected');
+        b.div.classList.remove('selected');
+        lockBoard = false;
+        selectedCards = [];
+      }, 700);
+    }
+  }
+}
+
+/* init happens via the name gate -> initGameForPlayer() */
+</script>
+</body>
+</html>

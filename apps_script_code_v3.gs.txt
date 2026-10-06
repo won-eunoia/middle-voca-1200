@@ -1,0 +1,211 @@
+/**
+ * VOCA-PIONEER 진행상황 저장 서버 (Google Apps Script) - v3
+ * ------------------------------------------------------
+ * v2 대비 추가:
+ *   1. 학생별 "단어별 누적 오답 횟수" 기록 (개인 맞춤 오답 프린트에 사용)
+ *   2. 학생별 "일별 학습 기록" (이번 주 학습량 리포트 / 반 랭킹에 사용)
+ *   3. 관리자용 전체 학생 목록 조회 (?action=admin)
+ *
+ * 업데이트 방법 (v1/v2를 이미 배포해두신 경우):
+ * 1. Apps Script 편집창의 코드를 Ctrl+A → Delete 로 전부 지우고, 이 코드를 붙여넣기
+ * 2. 저장(Ctrl+S)
+ * 3. [배포] → [배포 관리] → 연필 아이콘 → 버전: "새 버전" → [배포]
+ *    (웹 앱 URL은 그대로 유지됩니다)
+ *
+ * 주의: 기존 "progress" 탭의 열 구조가 또 바뀌었습니다.
+ *   기존 progress 탭을 삭제(또는 이름 변경)한 뒤 다시 시작하면 새 구조로 자동 생성됩니다.
+ */
+
+var SHEET_NAME = 'progress';
+var TOTAL_WORDS = 1200;
+var COL_COUNT = 17;
+
+function getSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow([
+      '이름', '마지막 업데이트', '상태', '진행 요약',
+      '전체 어휘 진행', '전체 완료 여부',
+      '최종 틀린 단어 수', '최종 틀린 단어 목록',
+      '자주 틀리는 단어 TOP 10',
+      '_direction', '_roundNumber', '_roundIndex', '_roundPool', '_score', '_roundWrong',
+      '_masteredWords', '_wrongCounts', '_dailyLog'
+    ]);
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function findRow_(sheet, name) {
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(name)) return i + 1;
+  }
+  return -1;
+}
+
+function todayKey_() {
+  return Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'Asia/Seoul', 'yyyy-MM-dd');
+}
+
+function topWrongWords_(wrongCounts, n) {
+  var arr = [];
+  for (var w in wrongCounts) arr.push([w, wrongCounts[w]]);
+  arr.sort(function (a, b) { return b[1] - a[1]; });
+  return arr.slice(0, n);
+}
+
+function doPost(e) {
+  var payload = JSON.parse(e.postData.contents);
+  var sheet = getSheet_();
+  var name = String(payload.name || '').trim();
+  if (!name) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'no name' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var isDone = payload.status === 'done';
+  var poolLen = (payload.roundPool && payload.roundPool.length) || 0;
+  var summary = payload.roundNumber + '라운드 ' + (isDone ? '완료' : '진행중') +
+    ' (' + payload.roundIndex + '/' + poolLen + '문제, 정답 ' + payload.score + '개)';
+  var finalWrongWords = payload.finalWrongWords || [];
+  var finalWrongList = isDone ? finalWrongWords.map(function (w) { return w[0]; }).join(', ') : '';
+  var finalWrongCount = isDone ? finalWrongWords.length : '';
+
+  var mastered = payload.masteredWords || [];
+  var wrongCounts = payload.wrongCounts || {};
+  var today = todayKey_();
+
+  var rowIndex = findRow_(sheet, name);
+  var oldMasteredCount = 0;
+  var dailyLog = {};
+
+  if (rowIndex !== -1) {
+    var oldVals = sheet.getRange(rowIndex, 16, 1, 3).getValues()[0]; // masteredWords, wrongCounts, dailyLog columns
+    try {
+      var oldMastered = JSON.parse(oldVals[0] || '[]');
+      oldMasteredCount = oldMastered.length;
+      var mergedM = {};
+      oldMastered.forEach(function (w) { mergedM[w] = true; });
+      mastered.forEach(function (w) { mergedM[w] = true; });
+      mastered = Object.keys(mergedM);
+    } catch (err) { /* ignore */ }
+    try {
+      var oldWrong = JSON.parse(oldVals[1] || '{}');
+      var mergedW = {};
+      for (var k in oldWrong) mergedW[k] = oldWrong[k];
+      for (var k2 in wrongCounts) mergedW[k2] = Math.max(mergedW[k2] || 0, wrongCounts[k2]);
+      wrongCounts = mergedW;
+    } catch (err2) { /* ignore */ }
+    try {
+      dailyLog = JSON.parse(oldVals[2] || '{}');
+    } catch (err3) { dailyLog = {}; }
+  }
+
+  // 오늘 기록 갱신 (이 저장 호출이 '답 하나 채점' 직후일 때만 attempts/correct 집계)
+  if (!dailyLog[today]) dailyLog[today] = { attempts: 0, correct: 0, newMastered: 0 };
+  if (typeof payload.lastAnswerCorrect === 'boolean') {
+    dailyLog[today].attempts += 1;
+    if (payload.lastAnswerCorrect) dailyLog[today].correct += 1;
+  }
+  var newlyMasteredToday = Math.max(0, mastered.length - oldMasteredCount);
+  if (newlyMasteredToday > 0) dailyLog[today].newMastered += newlyMasteredToday;
+
+  var masteredCount = mastered.length;
+  var pct = Math.round((masteredCount / TOTAL_WORDS) * 100);
+  var progressText = masteredCount + ' / ' + TOTAL_WORDS + ' (' + pct + '%)';
+  var allDone = masteredCount >= TOTAL_WORDS ? '✅ 전체 완료' : '';
+  var top10 = topWrongWords_(wrongCounts, 10).map(function (p) { return p[0] + '(' + p[1] + ')'; }).join(', ');
+
+  var row = [
+    name,
+    new Date(),
+    isDone ? '완료' : '진행중',
+    summary,
+    progressText,
+    allDone,
+    finalWrongCount,
+    finalWrongList,
+    top10,
+    payload.direction || '',
+    payload.roundNumber || 1,
+    payload.roundIndex || 0,
+    JSON.stringify(payload.roundPool || []),
+    payload.score || 0,
+    JSON.stringify(payload.roundWrong || []),
+    JSON.stringify(mastered),
+    JSON.stringify(wrongCounts)
+  ];
+  // dailyLog는 17번째 열이라 위 배열 길이(16)와 별도로 마지막에 추가
+  row.push(JSON.stringify(dailyLog));
+
+  if (rowIndex === -1) {
+    sheet.appendRow(row);
+  } else {
+    sheet.getRange(rowIndex, 1, 1, row.length).setValues([row]);
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  var action = (e.parameter && e.parameter.action) || '';
+  var sheet = getSheet_();
+
+  if (action === 'admin') {
+    var data = sheet.getDataRange().getValues();
+    var rows = [];
+    for (var i = 1; i < data.length; i++) {
+      var r = data[i];
+      if (!r[0]) continue;
+      var wrongCounts = {};
+      try { wrongCounts = JSON.parse(r[16] || '{}'); } catch (e1) {}
+      var dailyLog = {};
+      try { dailyLog = JSON.parse(r[17] || '{}'); } catch (e2) {}
+      rows.push({
+        name: r[0],
+        lastUpdated: r[1],
+        status: r[2],
+        summary: r[3],
+        progressText: r[4],
+        allDone: r[5],
+        masteredCount: JSON.parse(r[15] || '[]').length,
+        topWrong: topWrongWords_(wrongCounts, 10),
+        dailyLog: dailyLog
+      });
+    }
+    return ContentService.createTextOutput(JSON.stringify({ students: rows, totalWords: TOTAL_WORDS }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var name = String((e.parameter && e.parameter.name) || '').trim();
+  if (!name) {
+    return ContentService.createTextOutput(JSON.stringify({ found: false }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var rowIndex = findRow_(sheet, name);
+  if (rowIndex === -1) {
+    return ContentService.createTextOutput(JSON.stringify({ found: false }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var r = sheet.getRange(rowIndex, 1, 1, COL_COUNT + 1).getValues()[0];
+  var result = {
+    found: true,
+    status: r[2],
+    direction: r[9],
+    roundNumber: Number(r[10]) || 1,
+    roundIndex: Number(r[11]) || 0,
+    roundPool: JSON.parse(r[12] || '[]'),
+    score: Number(r[13]) || 0,
+    roundWrong: JSON.parse(r[14] || '[]'),
+    masteredWords: JSON.parse(r[15] || '[]'),
+    wrongCounts: JSON.parse(r[16] || '{}')
+  };
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
